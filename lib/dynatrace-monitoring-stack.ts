@@ -12,12 +12,14 @@ export class DynatraceMonitoringRoleStack extends cdk.Stack {
 
     const role = new iam.Role(this, 'role', {
       roleName: 'DynatraceMonitoringRole',
-      assumedBy: new iam.AccountPrincipal(props.dynatraceAccountId)
-        .withConditions({
-          "StringEquals": {
-            "sts:ExternalId": "8ddda2c2-8a5e-450c-9c73-74a92da96e17"
-          }
-        })
+      assumedBy: new iam.CompositePrincipal(
+        new iam.AccountPrincipal('509560245411'),
+        new iam.AccountPrincipal(props.dynatraceAccountId)
+      ).withConditions({
+        "StringEquals": {
+          "sts:ExternalId": "8ddda2c2-8a5e-450c-9c73-74a92da96e17"
+        }
+      })
     })
 
     role.addToPolicy(new iam.PolicyStatement({
