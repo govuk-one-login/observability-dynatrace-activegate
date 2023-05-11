@@ -2,6 +2,15 @@
 
 ## ActiveGate Stack
 
+To deploy, run: `npm cdk deploy DynatraceMonitoringRoleStack`.
+
+Before deploying, the AWS account will require bootstrapping for use with CDK: `npm run cdk bootstrap`.
+
+The following Secrets Manager Secrets are expected to already exist:
+
+- `dynatrace-url` the host name of the Dynatrace SaaS tenant, i.e. 'abc12345.live.dynatrace.com'
+- `dynatrace-token` a token with PaaS access to Dynatrace.
+
 ## Monitoring Role Stack
 
 This will create a role in your account called 'DynatraceMonitoringRole'.

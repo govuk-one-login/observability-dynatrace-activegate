@@ -37,5 +37,9 @@ export class DynatraceActivegateStack extends cdk.Stack {
     dynatraceUrl.grantRead(asg.role);
 
     asg.role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'));
+    asg.role.addToPrincipalPolicy(new iam.PolicyStatement({
+      actions: ['sts:AssumeRole'],
+      resources: ['*']
+    }))
   }
 }
