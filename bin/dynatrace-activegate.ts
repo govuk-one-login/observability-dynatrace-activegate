@@ -2,8 +2,14 @@
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
 import { DynatraceActivegateStack } from '../lib/dynatrace-activegate-stack';
+import { DynatraceMonitoringRoleStack } from '../lib/dynatrace-monitoring-stack';
 
 const app = new cdk.App();
-new DynatraceActivegateStack(app, 'DynatraceActivegateStack', {
+const dynatraceActivegateStack = new DynatraceActivegateStack(app, 'DynatraceActivegateStack', {
   env: { account: '145771043764', region: 'eu-west-2' }
 });
+
+new DynatraceMonitoringRoleStack(app, 'DynatraceMonitoringRoleStack', {
+  synthesizer: new cdk.CliCredentialsStackSynthesizer(),
+  dynatraceAccountId: dynatraceActivegateStack.account
+})

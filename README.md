@@ -1,14 +1,13 @@
-# Welcome to your CDK TypeScript project
+# Digital Identity Dynatrace ActiveGate
 
-This is a blank project for CDK development with TypeScript.
+## ActiveGate Stack
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+## Monitoring Role Stack
 
-## Useful commands
+This will create a role in your account called 'DynatraceMonitoringRole'.
+This role can then be used by [Dynatrace to access your AWS account](https://khw46367.live.dynatrace.com/#settings/awsmonitoring;gf=all). Add your account ID and the name of the role, and Dynatrace will automatically start ingesting metrics from your account.
 
-* `npm run build`   compile typescript to js
-* `npm run watch`   watch for changes and compile
-* `npm run test`    perform the jest unit tests
-* `cdk deploy`      deploy this stack to your default AWS account/region
-* `cdk diff`        compare deployed stack with current state
-* `cdk synth`       emits the synthesized CloudFormation template
+To deploy, either:
+
+- run `npm cdk deploy DynatraceMonitoringRoleStack` - this will use CDK to deploy the stack into your environment.
+- run `npm cdk synth DynatraceMonitoringRoleStack` - this will use CDK to generate a CloudFormation template, which you can then deploy yourself.
