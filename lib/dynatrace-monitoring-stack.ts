@@ -38,6 +38,8 @@ export class DynatraceMonitoringRoleStack extends cdk.Stack {
           'rds:DescribeEvents',
           'rds:ListTagsForResource',
           'ec2:DescribeAvailabilityZones',
+          'ec2:DescribeInstances',
+          'ec2:DescribeVolumes',
           'apigateway:GET',
           'cloudfront:ListDistributions',
           'codebuild:ListProjects',
