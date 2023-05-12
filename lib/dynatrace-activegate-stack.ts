@@ -21,8 +21,11 @@ export class DynatraceActivegateStack extends cdk.Stack {
       'export DT_TOKEN=$(aws secretsmanager get-secret-value --region eu-west-2 --secret-id dynatrace-token --query SecretString --output text)',
       'export DT_URL=$(aws secretsmanager get-secret-value --region eu-west-2 --secret-id dynatrace-url --query SecretString --output text)',
       'wget -O Dynatrace-ActiveGate-Linux-x86.sh "https://$DT_URL/api/v1/deployment/installer/gateway/unix/latest?arch=x86" --header="Authorization: Api-Token $DT_TOKEN"',
+      'wget -O Dynatrace-OneAgent-Linux-x86.sh "https://$DT_URL/api/v1/deployment/installer/agent/unix/latest?arch=x86" --header="Authorization: Api-Token $DT_TOKEN"',
       'chmod +x Dynatrace-ActiveGate-Linux-x86.sh',
-      './Dynatrace-ActiveGate-Linux-x86.sh'
+      'chmod +x Dynatrace-OneAgent-Linux-x86.sh',
+      './Dynatrace-ActiveGate-Linux-x86.sh',
+      './Dynatrace-OneAgent-Linux-x86.sh'
     );
 
     const asg = new autoscaling.AutoScalingGroup(this, 'asg', {
