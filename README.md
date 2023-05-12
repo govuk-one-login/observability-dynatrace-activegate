@@ -1,5 +1,7 @@
 # Digital Identity Dynatrace ActiveGate
 
+Before running commands here, run `npm install` to install dependencies.
+
 ## ActiveGate Stack
 
 To deploy, run: `npm cdk deploy DynatraceMonitoringRoleStack`.
