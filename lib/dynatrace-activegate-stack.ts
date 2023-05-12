@@ -22,27 +22,43 @@ export class DynatraceActivegateStack extends cdk.Stack {
       'export DT_URL=$(aws secretsmanager get-secret-value --region eu-west-2 --secret-id dynatrace-url --query SecretString --output text)',
       'wget -O Dynatrace-ActiveGate-Linux-x86.sh "https://$DT_URL/api/v1/deployment/installer/gateway/unix/latest?arch=x86" --header="Authorization: Api-Token $DT_TOKEN"',
       'chmod +x Dynatrace-ActiveGate-Linux-x86.sh',
-      './Dynatrace-ActiveGate-Linux-x86.sh');
+      './Dynatrace-ActiveGate-Linux-x86.sh'
+    );
 
     const asg = new autoscaling.AutoScalingGroup(this, 'asg', {
       vpc,
-      instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3A, ec2.InstanceSize.SMALL),
+      instanceType: ec2.InstanceType.of(
+        ec2.InstanceClass.T3A,
+        ec2.InstanceSize.SMALL
+      ),
       machineImage: new ec2.AmazonLinuxImage(),
       maxCapacity: 1,
       minCapacity: 1,
       userData
     });
 
-    const dynatraceToken = secretsmanager.Secret.fromSecretNameV2(this, 'dynatrace-token', 'dynatrace-token');
-    const dynatraceUrl = secretsmanager.Secret.fromSecretNameV2(this, 'dynatrace-url', 'dynatrace-url');
+    const dynatraceToken = secretsmanager.Secret.fromSecretNameV2(
+      this,
+      'dynatrace-token',
+      'dynatrace-token'
+    );
+    const dynatraceUrl = secretsmanager.Secret.fromSecretNameV2(
+      this,
+      'dynatrace-url',
+      'dynatrace-url'
+    );
     dynatraceToken.grantRead(asg.role);
     dynatraceUrl.grantRead(asg.role);
 
-    asg.role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'));
-    asg.role.addToPrincipalPolicy(new iam.PolicyStatement({
-      actions: ['sts:AssumeRole'],
-      resources: ['*']
-    }));
+    asg.role.addManagedPolicy(
+      iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore')
+    );
+    asg.role.addToPrincipalPolicy(
+      new iam.PolicyStatement({
+        actions: ['sts:AssumeRole'],
+        resources: ['*']
+      })
+    );
 
     this.role = asg.role;
   }
