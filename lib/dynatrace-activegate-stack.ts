@@ -6,6 +6,8 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 
 export class DynatraceActivegateStack extends cdk.Stack {
+  public readonly role: iam.IRole;
+
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
@@ -40,6 +42,8 @@ export class DynatraceActivegateStack extends cdk.Stack {
     asg.role.addToPrincipalPolicy(new iam.PolicyStatement({
       actions: ['sts:AssumeRole'],
       resources: ['*']
-    }))
+    }));
+
+    this.role = asg.role;
   }
 }

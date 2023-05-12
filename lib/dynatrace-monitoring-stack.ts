@@ -4,6 +4,7 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 
 interface StackProps extends cdk.StackProps {
   dynatraceAccountId: string
+  dynatraceActivegateRole: iam.IRole
 }
 
 export class DynatraceMonitoringRoleStack extends cdk.Stack {
@@ -14,7 +15,8 @@ export class DynatraceMonitoringRoleStack extends cdk.Stack {
       roleName: 'DynatraceMonitoringRole',
       assumedBy: new iam.CompositePrincipal(
         new iam.AccountPrincipal('509560245411'),
-        new iam.AccountPrincipal(props.dynatraceAccountId)
+        new iam.AccountPrincipal(props.dynatraceAccountId),
+        new iam.ArnPrincipal(props.dynatraceActivegateRole.roleArn)
       ).withConditions({
         "StringEquals": {
           "sts:ExternalId": "8ddda2c2-8a5e-450c-9c73-74a92da96e17"
