@@ -21,7 +21,7 @@ export class DynatraceActivegateStack extends cdk.Stack {
       'export DT_TOKEN=$(aws secretsmanager get-secret-value --region eu-west-2 --secret-id dynatrace-token --query SecretString --output text)',
       'export DT_URL=$(aws secretsmanager get-secret-value --region eu-west-2 --secret-id dynatrace-url --query SecretString --output text)',
       'wget -O Dynatrace-ActiveGate-Linux-x86.sh "https://$DT_URL/api/v1/deployment/installer/gateway/unix/latest?arch=x86" --header="Authorization: Api-Token $DT_TOKEN"',
-      'wget -O Dynatrace-OneAgent-Linux-x86.sh "https://$DT_URL/api/v1/deployment/installer/agent/unix/latest?arch=x86" --header="Authorization: Api-Token $DT_TOKEN"',
+      'wget -O Dynatrace-OneAgent-Linux-x86.sh "https://$DT_URL/api/v1/deployment/installer/agent/unix/default/latest?arch=x86" --header="Authorization: Api-Token $DT_TOKEN"',
       'chmod +x Dynatrace-ActiveGate-Linux-x86.sh',
       'chmod +x Dynatrace-OneAgent-Linux-x86.sh',
       './Dynatrace-ActiveGate-Linux-x86.sh',
@@ -31,10 +31,12 @@ export class DynatraceActivegateStack extends cdk.Stack {
     const asg = new autoscaling.AutoScalingGroup(this, 'asg', {
       vpc,
       instanceType: ec2.InstanceType.of(
-        ec2.InstanceClass.T3A,
-        ec2.InstanceSize.SMALL
+        ec2.InstanceClass.M6A,
+        ec2.InstanceSize.LARGE
       ),
-      machineImage: new ec2.AmazonLinuxImage(),
+      machineImage: new ec2.AmazonLinuxImage({
+        generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2
+      }),
       maxCapacity: 1,
       minCapacity: 1,
       userData
