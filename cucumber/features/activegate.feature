@@ -1,8 +1,8 @@
-Feature: AgtiveGate Feature
+Feature: ActiveGate Feature
 
-    Confirm the structure of the AgtiveGate template
+    Confirm the structure of the ActiveGate template
 
-    Scenario: AgtiveGate Template
+    Scenario: ActiveGate Template
         Given That synth has run
         When the file DynatraceActivegateStack.template.json exists
         Then the AWS::EC2::VPC resource with the CIDR range 10.0.0.0/16 should exist

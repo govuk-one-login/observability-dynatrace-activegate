@@ -16,7 +16,7 @@ defineFeature(feature, (test) => {
         rmSync('./test-activegate/', { recursive: true, force: true });
     });
 
-    test("AgtiveGate Template", ({ given, when, then }) => {
+    test("ActiveGate Template", ({ given, when, then }) => {
 
         let template: Template;
 

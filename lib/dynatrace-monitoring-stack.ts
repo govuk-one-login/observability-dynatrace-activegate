@@ -24,6 +24,7 @@ export class DynatraceMonitoringRoleStack extends cdk.Stack {
       })
     });
 
+    //These policies should be readonly
     role.addToPolicy(
       new iam.PolicyStatement({
         actions: [

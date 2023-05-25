@@ -8,3 +8,4 @@ Feature: Monitoring Feature
         Then the AWS::IAM::Role resource with the RoleName DynatraceMonitoringRole should exist
         And the AWS::IAM::Policy resource with the PolicyName like roleDefaultPolicy should exist
         And actions of AWS::IAM::Policy should match actions file
+        And actions of AWS::IAM::Policy should be readonly
