@@ -22,3 +22,9 @@ To deploy, either:
 
 - run `npm cdk deploy DynatraceMonitoringRoleStack` - this will use CDK to deploy the stack into your environment.
 - run `npm cdk synth DynatraceMonitoringRoleStack` - this will use CDK to generate a CloudFormation template, which you can then deploy yourself.
+
+## Testing locally
+
+Just run
+
+`npm test`
