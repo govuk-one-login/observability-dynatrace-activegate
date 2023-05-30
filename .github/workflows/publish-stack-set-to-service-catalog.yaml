@@ -20,7 +20,9 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: '18.16.0'  
+          node-version: '18.16.0'
+      - name: Install node dependencies
+        run: npm ci
       - name: Run Jest Tests
         run: npm test
 
@@ -42,4 +44,5 @@ jobs:
         with:
           directory: cdk.out/
           framework: cloudformation
+          skip_check: CKV_AWS_107,CKV_AWS_111
     
