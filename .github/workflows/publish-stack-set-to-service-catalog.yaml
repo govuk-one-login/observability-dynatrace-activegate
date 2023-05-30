@@ -45,4 +45,40 @@ jobs:
           directory: cdk.out/
           framework: cloudformation
           skip_check: CKV_AWS_107,CKV_AWS_111
+
+  update:
+    runs-on: ubuntu-latest
+    needs: 
+      - validate
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Check for template changes
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            lib:
+              - 'lib/**'
+      - name: cdk synth
+        if: steps.changes.outputs.lib == 'true'
+        uses: youyo/aws-cdk-github-actions@v2
+        with:
+          cdk_subcommand: 'synth'
+          cdk_version: '2.81.0'
+          working_dir: 'cdk.out'
+      - name: Apply
+        run: |
+          aws cloudformation update-stack-set --stack-set-name di-devplat-obv-dynatrace-iam \
+          --template-body file://cdk.out/DynatraceMonitoringRoleStack.template.json
+          --description 'Stack set that grants Dynatrace permission to pull metrics' \
+          --capabilities CAPABILITY_IAM \
+          --administration-role-arn arn:aws:iam::554094681588:role/AWSCloudFormationStackSetAdministrationRole \
+          --execution-role-name AWSCloudFormationStackSetExecutionRole \
+          --tags Key=Product,Value='GOV.UK Sign In' Key=System,Value=Observability Key=Environment,Value=production \
+          Key=Owner,Value='sre-pod-all-members@digital.cabinet-office.gov.uk' Key=Service,Value=dynatrace
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: 'eu-west-2'  
     
