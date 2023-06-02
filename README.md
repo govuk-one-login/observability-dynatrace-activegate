@@ -4,7 +4,7 @@ Before running commands here, run `npm install` to install dependencies.
 
 ## ActiveGate Stack
 
-To deploy, run: `npm cdk deploy DynatraceMonitoringRoleStack`.
+To deploy, run: `npm cdk deploy DynatraceActivegateStack`.
 
 Before deploying, the AWS account will require bootstrapping for use with CDK: `npm run cdk bootstrap`.
 
