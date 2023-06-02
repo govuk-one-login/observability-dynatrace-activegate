@@ -66,7 +66,7 @@ jobs:
           echo "release=$RELEASE" >> "$GITHUB_OUTPUT"
       - name: Apply
         run: |
-          aws cloudformation update-stack-set --stack-set-name di-devplat-obv-dynatrace-iam-${{ steps.hyphenate-version.outputs.release }} \
+          aws cloudformation create-stack-set --stack-set-name di-devplat-obv-dynatrace-iam-${{ steps.hyphenate-version.outputs.release }} \
           --template-body file://cdk.out/DynatraceMonitoringRoleStack.template.json \
           --description 'Stack set that grants Dynatrace permission to pull metrics' \
           --capabilities CAPABILITY_IAM \
