@@ -58,13 +58,19 @@ jobs:
           cdk_subcommand: 'synth'
           cdk_version: '2.81.0'
           working_dir: 'cdk.out'
+      - name: Hyphenate Version
+        id: hyphenate-version
+        run: |
+          VERSION=${{ github.event.release.tag_name }}
+          RELEASE=$(echo $VERSION | sed s/\\./-/g)
+          echo "release=$RELEASE" >> "$GITHUB_OUTPUT"
       - name: Apply
         run: |
-          aws cloudformation update-stack-set --stack-set-name di-devplat-obv-dynatrace-iam-${{ github.event.release.tag_name }} \
-          --template-body file://cdk.out/DynatraceMonitoringRoleStack.template.json
+          aws cloudformation update-stack-set --stack-set-name di-devplat-obv-dynatrace-iam-${{ steps.hyphenate-version.outputs.release }} \
+          --template-body file://cdk.out/DynatraceMonitoringRoleStack.template.json \
           --description 'Stack set that grants Dynatrace permission to pull metrics' \
           --capabilities CAPABILITY_IAM \
-          --administration-role-arn arn:aws:iam::<not yet kown>:role/AWSCloudFormationStackSetAdministrationRole \
+          --administration-role-arn arn:aws:iam::684469894301:role/AWSCloudFormationStackSetAdministrationRole \
           --execution-role-name AWSCloudFormationStackSetExecutionRole \
           --tags Key=Product,Value='GOV.UK Sign In' Key=System,Value=Observability Key=Environment,Value=production \
           Key=Owner,Value='platform-and-sre-pod@digital.cabinet-office.gov.uk' Key=Service,Value=dynatrace
