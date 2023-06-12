@@ -10,7 +10,7 @@ export class DynatraceMonitoringRoleStack extends cdk.Stack {
 
 
   dynatraceAccountIdRef = new cdk.CfnDynamicReference(
-    cdk.CfnDynamicReferenceService.SSM_SECURE,
+    cdk.CfnDynamicReferenceService.SSM,
     'dynatrace-account-id',
   );
 
