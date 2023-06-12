@@ -15,6 +15,5 @@ const dynatraceActivegateStack = new DynatraceActivegateStack(
 
 new DynatraceMonitoringRoleStack(app, 'DynatraceMonitoringRoleStack', {
   synthesizer: new cdk.CliCredentialsStackSynthesizer(),
-  dynatraceAccountId: dynatraceActivegateStack.account,
   dynatraceActivegateRole: dynatraceActivegateStack.role
 });

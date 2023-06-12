@@ -4,7 +4,7 @@ Before running commands here, run `npm install` to install dependencies.
 
 ## ActiveGate Stack
 
-To deploy, run: `npm cdk deploy DynatraceMonitoringRoleStack`.
+To deploy, run: `npm run cdk deploy DynatraceActivegateStack`.
 
 Before deploying, the AWS account will require bootstrapping for use with CDK: `npm run cdk bootstrap`.
 
@@ -20,8 +20,8 @@ This role can then be used by [Dynatrace to access your AWS account](https://khw
 
 To deploy, either:
 
-- run `npm cdk deploy DynatraceMonitoringRoleStack` - this will use CDK to deploy the stack into your environment.
-- run `npm cdk synth DynatraceMonitoringRoleStack` - this will use CDK to generate a CloudFormation template, which you can then deploy yourself.
+- run `npm run cdk deploy DynatraceMonitoringRoleStack` - this will use CDK to deploy the stack into your environment.
+- run `npm run cdk synth DynatraceMonitoringRoleStack` - this will use CDK to generate a CloudFormation template, which you can then deploy yourself.
 
 ## Testing locally
 

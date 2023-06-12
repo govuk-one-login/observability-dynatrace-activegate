@@ -3,11 +3,17 @@ import { Construct } from 'constructs';
 import * as iam from 'aws-cdk-lib/aws-iam';
 
 interface StackProps extends cdk.StackProps {
-  dynatraceAccountId: string;
   dynatraceActivegateRole: iam.IRole;
 }
 
 export class DynatraceMonitoringRoleStack extends cdk.Stack {
+
+
+  dynatraceAccountIdRef = new cdk.CfnDynamicReference(
+    cdk.CfnDynamicReferenceService.SSM,
+    '/observability/dynatrace-account-id',
+  );
+
   constructor(scope: Construct, id: string, props: StackProps) {
     super(scope, id, props);
 
@@ -15,7 +21,7 @@ export class DynatraceMonitoringRoleStack extends cdk.Stack {
       roleName: 'DynatraceMonitoringRole',
       assumedBy: new iam.CompositePrincipal(
         new iam.AccountPrincipal('509560245411'),
-        new iam.AccountPrincipal(props.dynatraceAccountId),
+        new iam.AccountPrincipal(this.dynatraceAccountIdRef),
         new iam.ArnPrincipal(props.dynatraceActivegateRole.roleArn)
       ).withConditions({
         StringEquals: {
