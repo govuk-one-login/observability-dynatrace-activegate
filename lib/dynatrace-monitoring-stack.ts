@@ -11,7 +11,7 @@ export class DynatraceMonitoringRoleStack extends cdk.Stack {
 
   dynatraceAccountIdRef = new cdk.CfnDynamicReference(
     cdk.CfnDynamicReferenceService.SSM,
-    'dynatrace-account-id',
+    '/observability/dynatrace-account-id',
   );
 
   constructor(scope: Construct, id: string, props: StackProps) {
