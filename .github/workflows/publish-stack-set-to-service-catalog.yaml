@@ -64,14 +64,17 @@ jobs:
           VERSION=${{ github.event.release.tag_name }}
           RELEASE=$(echo $VERSION | sed s/\\./-/g)
           echo "release=$RELEASE" >> "$GITHUB_OUTPUT"
+      - name: Assume AWS Role
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: <not yet known>
+          aws-region: eu-west-2
       - name: Delete previous stackset
         run: |
           previous=$(aws cloudformation list-stack-sets --status ACTIVE --query "Summaries[*].StackSetName" | \
           grep di-devplat-obv-dynatrace-iam | sed -e 's/^[ \t]*//' | tr -d '"')
           aws cloudformation delete-stack-set --stack-set-name $previous
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: 'eu-west-2'
       - name: Apply
         run: |
@@ -84,7 +87,5 @@ jobs:
           --tags Key=Product,Value='GOV.UK Sign In' Key=System,Value=Observability Key=Environment,Value=production \
           Key=Owner,Value='platform-and-sre-pod@digital.cabinet-office.gov.uk' Key=Service,Value=dynatrace
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: 'eu-west-2'  
     
