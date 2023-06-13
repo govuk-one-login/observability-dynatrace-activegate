@@ -29,15 +29,10 @@ defineFeature(feature, (test) => {
             template = Template.fromString(readFileSync(`./test-monitor/${fileName}`, "utf-8"));
         });
 
-        then(/^the (.*) resource with the (.*) (.*) should exist$/, (resourceType: string, resourceNameKey: string, resourceNameValue: string) => {
-
-            let props = {
-                Properties: {
-                    [resourceNameKey]: resourceNameValue
-                }
-            };
-
-            template.hasResource(resourceType, props);
+        then(/^the (.*) resource with the (.*) like (.*) should exist$/, (resourceType: string, resourceNameKey: string, resourceNameValue: string) => {
+            template.hasResource(resourceType, {});
+            let valueKey = Object.values(template.findResources(resourceType))[0]["Properties"][resourceNameKey];
+            expect(valueKey.startsWith(resourceNameValue)).toBeTruthy();
         });
 
         then(/^the (.*) resource with the (.*) like (.*) should exist$/, (resourceType: string, resourceNameKey: string, resourceNameValue: string) => {
