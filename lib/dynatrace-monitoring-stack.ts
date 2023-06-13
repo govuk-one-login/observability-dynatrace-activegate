@@ -1,10 +1,14 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import {v4 as uuidv4} from 'uuid';
 
 interface StackProps extends cdk.StackProps {
   dynatraceActivegateRole: iam.IRole;
 }
+
+let roleNameUuid = uuidv4();
+let roleNameUuidFirstElement = roleNameUuid.split('-')[0]
 
 export class DynatraceMonitoringRoleStack extends cdk.Stack {
 
@@ -18,7 +22,7 @@ export class DynatraceMonitoringRoleStack extends cdk.Stack {
     super(scope, id, props);
 
     const role = new iam.Role(this, 'role', {
-      roleName: 'DynatraceMonitoringRole',
+      roleName: `DynatraceMonitoringRole${roleNameUuidFirstElement}`,
       assumedBy: new iam.CompositePrincipal(
         new iam.AccountPrincipal('509560245411'),
         new iam.AccountPrincipal(this.dynatraceAccountIdRef),
