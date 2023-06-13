@@ -10,3 +10,6 @@ cdk.out
 # unit tests outputs
 test-monitor
 test-activegate
+
+# ide
+.vscode
