@@ -11,6 +11,11 @@ on:
   workflow_dispatch:
 
 jobs:
+  context:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Context
+        run: echo "$GITHUB_CONTEXT"
   test:
     runs-on: ubuntu-latest
     steps:
