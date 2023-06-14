@@ -11,17 +11,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  context:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Dump GitHub context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: echo "$GITHUB_CONTEXT"
-      - name: Dump job context
-        env:
-          JOB_CONTEXT: ${{ toJson(job) }}
-        run: echo "$JOB_CONTEXT"
   test:
     runs-on: ubuntu-latest
     steps:
@@ -85,14 +74,20 @@ jobs:
         with:
           role-to-assume: ${{ secrets.DT_GH_ACTIONS_ROLE_ARN }}
           aws-region: eu-west-2
-      - name: Delete previous stackset
+      - name: Get previous stackset
+        id: previous_stack_set
         run: |
-          previous=$(aws cloudformation list-stack-sets --status ACTIVE --query "Summaries[*].StackSetName" | \
+          PREVIOUS=$(aws cloudformation list-stack-sets --status ACTIVE --query "Summaries[*].StackSetName" | \
           grep di-devplat-obv-dynatrace-iam | sed -e 's/^[ \t]*//' | tr -d '"')
-          aws cloudformation delete-stack-set --stack-set-name $previous
+          echo "name=$PREVIOUS" >> "$GITHUB_OUTPUT"
         env:
           AWS_DEFAULT_REGION: eu-west-2
-      - name: Apply
+      - name: Account ids
+        id: account_ids
+        run: |
+          ACCOUNT_IDS=$(aws cloudformation list-stack-instances --stack-set-name ${{ steps.previous_stack_set.outputs.name }} --query "Summaries[*].Account" | jq -c . | sed -e 's/,/ /g' | tr -d '[]')
+          echo "ids=$ACCOUNT_IDS" >> "$GITHUB_OUTPUT"
+      - name: Create Stack Set
         run: |
           aws cloudformation create-stack-set --stack-set-name di-devplat-obv-dynatrace-iam-${{ steps.hyphenate-version.outputs.release }} \
           --template-body file://cdk.out/DynatraceMonitoringRoleStack.template.json \
@@ -104,3 +99,8 @@ jobs:
           Key=Owner,Value='platform-and-sre-pod@digital.cabinet-office.gov.uk' Key=Service,Value=dynatrace
         env:
           AWS_DEFAULT_REGION: eu-west-2
+      - name: Create new and delete old stack instances and delete old stack set
+        run: |
+          aws cloudformation create-stack-instances --stack-set-name di-devplat-obv-dynatrace-iam-${{ steps.hyphenate-version.outputs.release }} --regions eu-west-2 --accounts ${{ steps.account_ids.outputs.ids }}
+          aws cloudformation delete-stack-instances --stack-set-name ${{ steps.previous_stack_set.outputs.name }} --regions eu-west-2 --accounts ${{ steps.account_ids.outputs.ids }} --no-retain-stacks
+          aws cloudformation delete-stack-set --stack-set-name ${{ steps.previous_stack_set.outputs.name }}
