@@ -87,7 +87,9 @@ jobs:
         run: |
           ACCOUNT_IDS=$(aws cloudformation list-stack-instances --stack-set-name ${{ steps.previous_stack_set.outputs.name }} --query "Summaries[*].Account" | jq -c . | sed -e 's/,/ /g' | tr -d '[]')
           echo "ids=$ACCOUNT_IDS" >> "$GITHUB_OUTPUT"
-      - name: Create Stack Set
+        env:
+          AWS_DEFAULT_REGION: eu-west-2
+      - name: Create Stack Set and instances
         run: |
           aws cloudformation create-stack-set --stack-set-name di-devplat-obv-dynatrace-iam-${{ steps.hyphenate-version.outputs.release }} \
           --template-body file://cdk.out/DynatraceMonitoringRoleStack.template.json \
@@ -97,10 +99,12 @@ jobs:
           --execution-role-name AWSCloudFormationStackSetExecutionRole \
           --tags Key=Product,Value='GOV.UK Sign In' Key=System,Value=Observability Key=Environment,Value=production \
           Key=Owner,Value='platform-and-sre-pod@digital.cabinet-office.gov.uk' Key=Service,Value=dynatrace
+          aws cloudformation create-stack-instances --stack-set-name di-devplat-obv-dynatrace-iam-${{ steps.hyphenate-version.outputs.release }} --regions eu-west-2 --accounts ${{ steps.account_ids.outputs.ids }}
         env:
           AWS_DEFAULT_REGION: eu-west-2
-      - name: Create new and delete old stack instances and delete old stack set
+      - name: Delete old stack instances and stack set
         run: |
-          aws cloudformation create-stack-instances --stack-set-name di-devplat-obv-dynatrace-iam-${{ steps.hyphenate-version.outputs.release }} --regions eu-west-2 --accounts ${{ steps.account_ids.outputs.ids }}
           aws cloudformation delete-stack-instances --stack-set-name ${{ steps.previous_stack_set.outputs.name }} --regions eu-west-2 --accounts ${{ steps.account_ids.outputs.ids }} --no-retain-stacks
           aws cloudformation delete-stack-set --stack-set-name ${{ steps.previous_stack_set.outputs.name }}
+        env:
+          AWS_DEFAULT_REGION: eu-west-2
