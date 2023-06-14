@@ -94,7 +94,7 @@ jobs:
           aws cloudformation create-stack-set --stack-set-name di-devplat-obv-dynatrace-iam-${{ steps.hyphenate-version.outputs.release }} \
           --template-body file://cdk.out/DynatraceMonitoringRoleStack.template.json \
           --description 'Stack set that grants Dynatrace permission to pull metrics' \
-          --capabilities CAPABILITY_IAM \
+          --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
           --administration-role-arn arn:aws:iam::684469894301:role/AWSCloudFormationStackSetAdministrationRole \
           --execution-role-name AWSCloudFormationStackSetExecutionRole \
           --tags Key=Product,Value='GOV.UK Sign In' Key=System,Value=Observability Key=Environment,Value=production \
@@ -105,6 +105,12 @@ jobs:
       - name: Delete old stack instances and stack set
         run: |
           aws cloudformation delete-stack-instances --stack-set-name ${{ steps.previous_stack_set.outputs.name }} --regions eu-west-2 --accounts ${{ steps.account_ids.outputs.ids }} --no-retain-stacks
+          lines=$(aws cloudformation list-stack-instances --stack-set-name ${{ steps.previous_stack_set.outputs.name }} | wc -l)
+          while [ "$lines" -gt 3 ]
+          do
+            sleep 10
+            lines=$(aws cloudformation list-stack-instances --stack-set-name ${{ steps.previous_stack_set.outputs.name }} | wc -l)
+          done
           aws cloudformation delete-stack-set --stack-set-name ${{ steps.previous_stack_set.outputs.name }}
         env:
           AWS_DEFAULT_REGION: eu-west-2
