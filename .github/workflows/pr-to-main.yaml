@@ -1,12 +1,10 @@
-name: Publish Stack Set to Service Catalog
-# On a push to the main branch or via manual execution this workflow will 
+name: Test Stacks valid
+# On a PR to the main branch or via manual execution this workflow will 
 # Synth the CloudFormation templates from the typescript cdk run jests tests
 # against the resultant files and confirm they contain the expected resources.
-# The Synth will run again and if a difference is found they will update the
-# Service Catalog Stack Set. 
 
 on:
-  push:
+  pull_request:
     branches:
       - main
   workflow_dispatch:
