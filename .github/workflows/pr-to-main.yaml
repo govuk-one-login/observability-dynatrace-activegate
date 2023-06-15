@@ -1,12 +1,10 @@
-name: Publish Stack Set to Service Catalog
-# On a push to the main branch or via manual execution this workflow will 
+name: Test Stacks valid
+# On a PR to the main branch or via manual execution this workflow will 
 # Synth the CloudFormation templates from the typescript cdk run jests tests
 # against the resultant files and confirm they contain the expected resources.
-# The Synth will run again and if a difference is found they will update the
-# Service Catalog Stack Set. 
 
 on:
-  push:
+  pull_request:
     branches:
       - main
   workflow_dispatch:
@@ -37,8 +35,10 @@ jobs:
         uses: youyo/aws-cdk-github-actions@v2
         with:
           cdk_subcommand: 'synth'
-          cdk_version: '2.81.0'
+          cdk_version: '2.83.1'
           working_dir: 'cdk.out'
+          cdk_stack: DynatraceMonitoringRoleStack
+          actions_comment: false
       - name: Run Checkov action
         uses: bridgecrewio/checkov-action@v12
         with:

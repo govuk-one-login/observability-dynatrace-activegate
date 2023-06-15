@@ -1,9 +1,8 @@
-name: Publish Stack Set to Service Catalog
+name: Publish Stack Set and stack instances
 # On a relase via manual execution this workflow will 
 # Synth the CloudFormation templates from the typescript cdk run jests tests
 # against the resultant files and confirm they contain the expected resources.
-# The Synth will run again and if a difference is found they will update the
-# Service Catalog Stack Set. 
+# Deploy the new stack instance to accounts where an instance already exists
 
 on:
   release:
@@ -36,8 +35,10 @@ jobs:
         uses: youyo/aws-cdk-github-actions@v2
         with:
           cdk_subcommand: 'synth'
-          cdk_version: '2.81.0'
+          cdk_version: '2.83.1'
           working_dir: 'cdk.out'
+          cdk_stack: DynatraceMonitoringRoleStack
+          actions_comment: false
       - name: Run Checkov action
         uses: bridgecrewio/checkov-action@v12
         with:
@@ -61,8 +62,10 @@ jobs:
         uses: youyo/aws-cdk-github-actions@v2
         with:
           cdk_subcommand: 'synth'
-          cdk_version: '2.81.0'
+          cdk_version: '2.83.1'
           working_dir: 'cdk.out'
+          cdk_stack: DynatraceMonitoringRoleStack
+          actions_comment: false
       - name: Hyphenate Version
         id: hyphenate-version
         run: |
@@ -91,6 +94,7 @@ jobs:
           AWS_DEFAULT_REGION: eu-west-2
       - name: Create Stack Set and instances
         run: |
+          # Create the new stack set
           aws cloudformation create-stack-set --stack-set-name di-devplat-obv-dynatrace-iam-${{ steps.hyphenate-version.outputs.release }} \
           --template-body file://cdk.out/DynatraceMonitoringRoleStack.template.json \
           --description 'Stack set that grants Dynatrace permission to pull metrics' \
@@ -99,18 +103,23 @@ jobs:
           --execution-role-name AWSCloudFormationStackSetExecutionRole \
           --tags Key=Product,Value='GOV.UK Sign In' Key=System,Value=Observability Key=Environment,Value=production \
           Key=Owner,Value='platform-and-sre-pod@digital.cabinet-office.gov.uk' Key=Service,Value=dynatrace
-          aws cloudformation create-stack-instances --stack-set-name di-devplat-obv-dynatrace-iam-${{ steps.hyphenate-version.outputs.release }} --regions eu-west-2 --accounts ${{ steps.account_ids.outputs.ids }}
-        env:
-          AWS_DEFAULT_REGION: eu-west-2
-      - name: Delete old stack instances and stack set
-        run: |
-          aws cloudformation delete-stack-instances --stack-set-name ${{ steps.previous_stack_set.outputs.name }} --regions eu-west-2 --accounts ${{ steps.account_ids.outputs.ids }} --no-retain-stacks
-          lines=$(aws cloudformation list-stack-instances --stack-set-name ${{ steps.previous_stack_set.outputs.name }} | wc -l)
-          while [ "$lines" -gt 3 ]
-          do
-            sleep 10
-            lines=$(aws cloudformation list-stack-instances --stack-set-name ${{ steps.previous_stack_set.outputs.name }} | wc -l)
+          
+          # Loop over account_id of stack instances
+          for account_id in ${{ steps.account_ids.outputs.ids }}; do
+            # Delete the old stack instance
+            aws cloudformation delete-stack-instances --stack-set-name ${{ steps.previous_stack_set.outputs.name }} --regions eu-west-2 --accounts $account_id --no-retain-stacks
+            # Wait for the stack instance to be fully gone
+            lines=$(aws cloudformation describe-stack-instance --stack-set-name ${{ steps.previous_stack_set.outputs.name }} --stack-instance-account $account_id --stack-instance-region eu-west-2 | wc -l)
+            while [ "$lines" -gt 0 ]
+            do
+              sleep 3
+              lines=$(aws cloudformation describe-stack-instance --stack-set-name ${{ steps.previous_stack_set.outputs.name }} --stack-instance-account $account_id --stack-instance-region eu-west-2 | wc -l)
+            done
+            # Create the new stack instance using the new stack set
+            aws cloudformation create-stack-instances --stack-set-name di-devplat-obv-dynatrace-iam-${{ steps.hyphenate-version.outputs.release }} --regions eu-west-2 --accounts $account_id
           done
+
+          # Delete the old stack set
           aws cloudformation delete-stack-set --stack-set-name ${{ steps.previous_stack_set.outputs.name }}
         env:
           AWS_DEFAULT_REGION: eu-west-2
