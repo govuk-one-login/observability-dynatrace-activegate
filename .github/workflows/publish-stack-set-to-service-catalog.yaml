@@ -105,11 +105,11 @@ jobs:
             # Delete the old stack instance
             aws cloudformation delete-stack-instances --stack-set-name ${{ steps.previous_stack_set.outputs.name }} --regions eu-west-2 --accounts $account_id --no-retain-stacks
             # Wait for the stack instance to be fully gone
-            lines=$(aws cloudformation describe-stack-instance --stack-set-name ${{ steps.previous_stack_set.outputs.name }}--stack-instance-account $account_id --stack-instance-region eu-west-2 | wc -l)
+            lines=$(aws cloudformation describe-stack-instance --stack-set-name ${{ steps.previous_stack_set.outputs.name }} --stack-instance-account $account_id --stack-instance-region eu-west-2 | wc -l)
             while [ "$lines" -gt 0 ]
             do
               sleep 3
-              lines=$(aws cloudformation describe-stack-instance --stack-set-name ${{ steps.previous_stack_set.outputs.name }}--stack-instance-account $account_id --stack-instance-region eu-west-2 | wc -l)
+              lines=$(aws cloudformation describe-stack-instance --stack-set-name ${{ steps.previous_stack_set.outputs.name }} --stack-instance-account $account_id --stack-instance-region eu-west-2 | wc -l)
             done
             # Create the new stack instance using the new stack set
             aws cloudformation create-stack-instances --stack-set-name di-devplat-obv-dynatrace-iam-${{ steps.hyphenate-version.outputs.release }} --regions eu-west-2 --accounts $account_id
@@ -117,17 +117,5 @@ jobs:
 
           # Delete the old stack set
           aws cloudformation delete-stack-set --stack-set-name ${{ steps.previous_stack_set.outputs.name }}
-        env:
-          AWS_DEFAULT_REGION: eu-west-2
-      - name: Delete old stack instances and stack set
-        run: |
-          aws cloudformation delete-stack-instances --stack-set-name ${{ steps.previous_stack_set.outputs.name }} --regions eu-west-2 --accounts ${{ steps.account_ids.outputs.ids }} --no-retain-stacks
-          lines=$(aws cloudformation list-stack-instances --stack-set-name ${{ steps.previous_stack_set.outputs.name }} | wc -l)
-          while [ "$lines" -gt 3 ]
-          do
-            sleep 10
-            lines=$(aws cloudformation list-stack-instances --stack-set-name ${{ steps.previous_stack_set.outputs.name }} | wc -l)
-          done
-          
         env:
           AWS_DEFAULT_REGION: eu-west-2
