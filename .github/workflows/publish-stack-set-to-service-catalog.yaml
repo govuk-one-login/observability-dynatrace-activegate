@@ -77,6 +77,7 @@ jobs:
         with:
           role-to-assume: ${{ secrets.DT_GH_ACTIONS_ROLE_ARN }}
           aws-region: eu-west-2
+          role-duration-seconds: 7200
       - name: Get previous stackset
         id: previous_stack_set
         run: |
