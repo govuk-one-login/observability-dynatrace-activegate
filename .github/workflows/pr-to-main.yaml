@@ -38,6 +38,7 @@ jobs:
           cdk_version: '2.83.1'
           working_dir: 'cdk.out'
           cdk_stack: DynatraceMonitoringRoleStack
+          actions_comment: false
       - name: Run Checkov action
         uses: bridgecrewio/checkov-action@v12
         with:
