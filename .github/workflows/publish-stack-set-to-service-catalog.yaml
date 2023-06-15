@@ -117,6 +117,13 @@ jobs:
             done
             # Create the new stack instance using the new stack set
             aws cloudformation create-stack-instances --stack-set-name di-devplat-obv-dynatrace-iam-${{ steps.hyphenate-version.outputs.release }} --regions eu-west-2 --accounts $account_id
+            # Make sure creation is complete before moving on
+            status=$(aws cloudformation describe-stack-instance --stack-set-name di-devplat-obv-dynatrace-iam-${{ steps.hyphenate-version.outputs.release }} --stack-instance-account $account_id  --stack-instance-region eu-west-2 --query "StackInstance.StackInstanceStatus.DetailedStatus" | tr -d '"')
+            while [[ $status != "SUCCEEDED"  ]]
+            do
+              sleep 3
+              status=$(aws cloudformation describe-stack-instance --stack-set-name di-devplat-obv-dynatrace-iam-${{ steps.hyphenate-version.outputs.release }} --stack-instance-account $account_id  --stack-instance-region eu-west-2 --query "StackInstance.StackInstanceStatus.DetailedStatus" | tr -d '"')
+            done
           done
 
           # Delete the old stack set
