@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Services not queried due to denial by permission boundaries
+# Services not queried due to denial by permission boundaries so check manually
 # Amazon AppStream
 # You will need to check 
 # Billing
@@ -65,6 +65,7 @@ service_test=$(aws autoscaling describe-auto-scaling-groups | grep AutoScalingGr
 if [ "$service_test" -gt 0 ]
 then
   managed_services+="Amazon EC2 Auto Scaling,"
+  managed_services+="Amazon EC2 Auto Scaling (built-in),"
 fi
 
 service_test=$(aws keyspaces list-keyspaces | grep keyspaceName | wc -l)
@@ -144,7 +145,7 @@ then
   managed_services+="Amazon Database Migration Service,"
 fi
 
-service_test=$(aws docdb describe-db-cluster | wc -l)
+service_test=$(aws docdb describe-db-clusters | wc -l)
 
 if [ "$service_test" -gt 3 ]
 then
@@ -157,5 +158,56 @@ if [ "$service_test" -gt 3 ]
 then
   managed_services+="AWS Direct Connect,"
 fi
+
+service_test=$(aws dynamodb list-tables | wc -l)
+
+if [ "$service_test" -gt 3 ]
+then
+  managed_services+="Amazon DynamoDB (built-in),"
+fi
+
+service_test=$(aws ec2 describe-volumes | grep VolumeId | wc -l)
+
+if [ "$service_test" -gt 0 ]
+then
+  managed_services+="Amazon EBS (built-in),"
+fi
+
+service_test=$(aws ec2 describe-instances | grep InstanceId | wc -l)
+
+if [ "$service_test" -gt 0 ]
+then
+  managed_services+="Amazon EC2 (built-in),"
+fi
+
+service_test=$(aws ec2 describe-spot-fleet-requests | wc -l)
+
+if [ "$service_test" -gt 3 ]
+then
+  managed_services+="Amazon EC2 Spot Fleet,"
+fi
+
+service_test=$(aws ecs list-clusters  | wc -l)
+
+if [ "$service_test" -gt 3 ]
+then
+  managed_services+="Amazon Elastic Container Service (ECS),"
+  managed_services+="Amazon ECS ContainerInsights,"
+fi
+
+service_test=$(aws elasticache describe-cache-clusters | wc -l)
+
+if [ "$service_test" -gt 3 ]
+then
+  managed_services+="Amazon ElastiCache (EC),"
+fi
+
+service_test=$(aws elasticbeanstalk describe-environments | wc -l)
+
+if [ "$service_test" -gt 3 ]
+then
+  managed_services+="AWS Elastic Beanstalk,"
+fi
+
 
 echo $managed_services | tr "," "\n"
