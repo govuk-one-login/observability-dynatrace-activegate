@@ -99,28 +99,63 @@ service_test=$(aws codebuild list-projects | wc -l)
 
 if [ "$service_test" -gt 3 ]
 then
-  managed_services+="AWS CodeBuild"
+  managed_services+="AWS CodeBuild,"
 fi
 
 service_test=$(aws cognito-identity list-identity-pools --max-results 1 | grep IdentityPoolId | wc -l)
 
 if [ "$service_test" -gt 0 ]
 then
-  managed_services+="Amazon Cognito"
+  managed_services+="Amazon Cognito,"
 fi
 
 service_test=$(aws connect list-instances | grep Arn | wc -l)
 
 if [ "$service_test" -gt 0 ]
 then
-  managed_services+="Amazon Connect"
+  managed_services+="Amazon Connect,"
 fi
 
 service_test=$(aws eks list-clusters | wc -l)
 
 if [ "$service_test" -gt 3 ]
 then
-  managed_services+="Amazon Elastic Kubernetes Service (EKS)"
+  managed_services+="Amazon Elastic Kubernetes Service (EKS),"
+fi
+
+service_test=$(aws datasync list-tasks | grep TaskArn | wc -l)
+
+if [ "$service_test" -gt 3 ]
+then
+  managed_services+="AWS DataSync,"
+fi
+
+service_test=$(aws dax describe-clusters | wc -l)
+
+if [ "$service_test" -gt 3 ]
+then
+  managed_services+="Amazon DynamoDB Accelerator (DAX),"
+fi
+
+service_test=$(aws dms describe-replication-instances | wc -l)
+
+if [ "$service_test" -gt 3 ]
+then
+  managed_services+="Amazon Database Migration Service,"
+fi
+
+service_test=$(aws docdb describe-db-cluster | wc -l)
+
+if [ "$service_test" -gt 3 ]
+then
+  managed_services+="Amazon DocumentDB,"
+fi
+
+service_test=$(aws directconnect describe-connections | wc -l)
+
+if [ "$service_test" -gt 3 ]
+then
+  managed_services+="AWS Direct Connect,"
 fi
 
 echo $managed_services | tr "," "\n"
