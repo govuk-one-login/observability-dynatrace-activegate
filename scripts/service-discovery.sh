@@ -8,10 +8,14 @@
 # Amazon SageMaker Ground Truth	
 # Amazon SageMaker Processing Jobs	
 # Amazon SageMaker Training Jobs
+# Amazon WorkSpaces
 
 # You will need to check manually
-# Billing
-# Chatbot
+# AWS Billing
+# AWS Chatbot
+# Amazon Textract
+# AWS IoT Things Graph
+# AWS Trusted Advisor
 
 # Deprected so ignored
 # elastic-inference
@@ -23,6 +27,7 @@
 # Amazon MediaTailor
 # AWS IoT Analytics
 # AWS RoboMaker
+# Amazon WorkMail
 
 
 managed_services=""
@@ -74,7 +79,16 @@ services=(
    "qldb list-ledgers|Amazon QLDB"
    "rds describe-db-instances|Amazon RDS (built-in)"
    "redshift describe-clusters|Amazon Redshift"
-   "route53 list-hosted-zones|Amazon Route 53"
+   "route53 list-hosted-zones|Amazon Route 53"aws
+   "sesv2 list-email-identities|Amazon Simple Email Service (SES)"
+   "sns list-topics|Amazon Simple Notification Service (SNS)"
+   "sqs list-queues|Amazon Simple Queue Service (SQS)"
+   "ssm list-commands|AWS Systems Manager - Run Command"
+   "stepfunctions list-state-machines|AWS Step Functions"
+   "transfer list-servers|Amazon Transfer Family"
+   "ec2 describe-transit-gateways|AWS Transit Gateway"
+   "translate list-text-translation-jobs|Amazon Translate"
+   "ec2 describe-vpn-connections|AWS Site-to-Site VPN"
 )
 
 for service in "${services[@]}"
@@ -166,7 +180,7 @@ service_test=$(aws elbv2 describe-load-balancers | wc -l)
 if [ "$service_test" -gt 3 ]
 then
   managed_services+="AWS Elastic Load Balancing (ELB) (built-in),"
-  managed_services+="AWS Application and Network Load Balancer (built-in)"
+  managed_services+="AWS Application and Network Load Balancer (built-in),"
 fi
 
 service_test=$(aws s3 ls | wc -l)
@@ -178,12 +192,51 @@ then
 fi
 
 service_test_1=$(aws servicecatalog search-products | wc -l)
-service_test_2=$(aws aws servicecatalog list-portfolios | wc -l)
-service_test_3=$(aws servicecatalog list-service-actions| wc -l)
+service_test_2=$(aws servicecatalog list-portfolios | wc -l)
+service_test_3=$(aws servicecatalog list-service-actions | wc -l)
 
 if [[ "$service_test_1" -gt 8 || "$service_test_2" -gt 3 || "$service_test_3" -gt 3 ]]
 then
-  managed_services+="AWS Internet of Things (IoT),"
+  managed_services+="AWS Service Catalog,"
+fi
+
+service_test_1=$(aws storagegateway list-volumes | wc -l)
+service_test_2=$(aws storagegateway list-tapes | wc -l)
+service_test_3=$(aws storagegateway list-gateways | wc -l)
+service_test_4=$(aws storagegateway list-file-shares | wc -l)
+
+if [[ "$service_test_1" -gt 3 || "$service_test_2" -gt 3 || "$service_test_3" -gt 3 || "$service_test_4" -gt 4 ]]
+then
+  managed_services+="AWS Storage Gateway,"
+fi
+
+service_test_1=$(aws swf list-domains --registration-status REGISTERED | wc -l)
+service_test_2=$(aws swf list-domains --registration-status DEPRECATED | wc -l)
+
+if [[ "$service_test_1" -gt 3 || "$service_test_2" -gt 3  ]]
+then
+  managed_services+="Amazon SWF,"
+fi
+
+service_test_1=$(aws waf list-rules | wc -l)
+service_test_2=$(aws waf list-web-acls | wc -l)
+
+if [[ "$service_test_1" -gt 3 || "$service_test_2" -gt 3  ]]
+then
+  managed_services+="Amazon WAF Classic,"
+fi
+
+service_test_1=$(aws wafv2 list-managed-rule-sets --scope CLOUDFRONT --region=us-east-1 | wc -l)
+service_test_2=$(aws wafv2 list-managed-rule-sets --scope REGIONAL | wc -l)
+service_test_3=$(aws wafv2 list-rule-groups --scope CLOUDFRONT --region=us-east-1 | wc -l)
+service_test_4=$(aws wafv2 list-rule-groups --scope REGIONAL | wc -l)
+service_test_5=$(aws wafv2 list-web-acls --scope CLOUDFRONT --region=us-east-1 | wc -l)
+service_test_6=$(aws wafv2 list-web-acls --scope REGIONAL | wc -l)
+
+if [[ "$service_test_1" -gt 3 || "$service_test_2" -gt 3 || "$service_test_3" -gt 3 ||
+      "$service_test_4" -gt 3 || "$service_test_5" -gt 4 || "$service_test_6" -gt 4 ]]
+then
+  managed_services+="Amazon WAF ,"
 fi
 
 echo $managed_services | tr "," "\n" | sort
