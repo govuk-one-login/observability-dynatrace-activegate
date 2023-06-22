@@ -15,6 +15,11 @@ export class DynatraceMonitoringRoleStack extends cdk.Stack {
     '/observability/dynatrace-account-id',
   );
 
+  dynatraceExternalIdRef = new cdk.CfnDynamicReference(
+    cdk.CfnDynamicReferenceService.SSM,
+    '/observability/dynatrace-external-id',
+  );
+
   constructor(scope: Construct, id: string, props: StackProps) {
     super(scope, id, props);
 
@@ -26,7 +31,7 @@ export class DynatraceMonitoringRoleStack extends cdk.Stack {
         new iam.ArnPrincipal(props.dynatraceActivegateRole.roleArn)
       ).withConditions({
         StringEquals: {
-          'sts:ExternalId': '8ddda2c2-8a5e-450c-9c73-74a92da96e17'
+          'sts:ExternalId': this.dynatraceExternalIdRef
         }
       })
     });
