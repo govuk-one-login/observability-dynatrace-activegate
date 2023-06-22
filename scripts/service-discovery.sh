@@ -2,6 +2,12 @@
 
 # Services not queried due to denial by permission boundaries so check manually
 # Amazon AppStream
+# Amazon SageMaker Batch Transform Jobs	
+# Amazon SageMaker Endpoint Instances
+# Amazon SageMaker Endpoints
+# Amazon SageMaker Ground Truth	
+# Amazon SageMaker Processing Jobs	
+# Amazon SageMaker Training Jobs
 
 # You will need to check manually
 # Billing
@@ -169,6 +175,15 @@ if [ "$service_test" -gt 0 ]
 then
   managed_services+="Amazon S3,"
   managed_services+="Amazon S3 (built-in),"
+fi
+
+service_test_1=$(aws servicecatalog search-products | wc -l)
+service_test_2=$(aws aws servicecatalog list-portfolios | wc -l)
+service_test_3=$(aws servicecatalog list-service-actions| wc -l)
+
+if [[ "$service_test_1" -gt 8 || "$service_test_2" -gt 3 || "$service_test_3" -gt 3 ]]
+then
+  managed_services+="AWS Internet of Things (IoT),"
 fi
 
 echo $managed_services | tr "," "\n" | sort
