@@ -15,5 +15,10 @@ export class DynatraceSSMProdStack extends cdk.Stack {
       parameterName: '/observability/dynatrace-account-id',
       stringValue: '841529299698',
     });
+
+    const ssmParameterExternalId = new ssm.StringParameter(this, 'observabilitySsmExternalIdParameter', {
+      parameterName: '/observability/dynatrace-external-id',
+      stringValue: '8ddda2c2-8a5e-450c-9c73-74a92da96e17',
+    });
   }
 }
