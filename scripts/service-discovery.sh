@@ -69,7 +69,6 @@ services=(
    "lex-models get-bots|Amazon Lex"
    "logs describe-log-groups|Amazon CloudWatch Logs"
    "mediaconnect list-flows|AWS Elemental MediaConnect"
-   "mediaconvert describe-endpoints|Amazon MediaConvert"
    "mediapackage list-channels|Amazon MediaPackage Live"
    "mediapackage-vod list-packaging-configurations|Amazon MediaPackage Video on Demand"
    "ec2 describe-nat-gateways|Amazon VPC NAT Gateways"
@@ -237,6 +236,15 @@ if [[ "$service_test_1" -gt 3 || "$service_test_2" -gt 3 || "$service_test_3" -g
       "$service_test_4" -gt 3 || "$service_test_5" -gt 4 || "$service_test_6" -gt 4 ]]
 then
   managed_services+="Amazon WAF ,"
+fi
+
+url=$(aws mediaconvert describe-endpoints | grep eu-west-2 | awk '{print $2}' | sed 's/"//g')
+
+service_test_1=$(aws mediaconvert list-jobs --endpoint-url $url | wc -l)
+
+if [[ "$service_test_1" -gt 3 ]]
+then
+  managed_services+="Amazon MediaConvert,"
 fi
 
 echo $managed_services | tr "," "\n" | sort
