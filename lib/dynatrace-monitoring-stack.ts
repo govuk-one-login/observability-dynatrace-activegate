@@ -53,6 +53,7 @@ export class DynatraceMonitoringRoleStack extends cdk.Stack {
           'dynamodb:ListTagsOfResource',
           'ec2:DescribeAvailabilityZones',
           'ec2:DescribeInstances',
+          'ec2:DescribeNatGateways',
           'ec2:DescribeVolumes',
           'ecs:ListClusters',
           'elasticache:DescribeCacheClusters',
