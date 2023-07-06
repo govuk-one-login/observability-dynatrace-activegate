@@ -37,9 +37,7 @@ services=(
    "mq list-brokers|Amazon MQ"
    "apigatewayv2 get-apis|Amazon API Gateway"
    "appsync list-graphql-apis|AWS AppSync"
-   "athena list-work-groups|Amazon Athena"
    "rds describe-db-clusters|Amazon Aurora"
-   "keyspaces list-keyspaces|Amazon Keyspaces"
    "cloudhsmv2 describe-clusters|AWS CloudHSM"
    "codebuild list-projects|AWS CodeBuild"
    "connect list-instances|Amazon Connect"
@@ -246,5 +244,23 @@ if [[ "$service_test_1" -gt 3 ]]
 then
   managed_services+="Amazon MediaConvert,"
 fi
+
+service_test=$(aws keyspaces list-keyspaces | wc -l)
+
+if [ "$service_test" -gt 20 ]
+then
+  managed_services+="Amazon Keyspaces,"
+fi
+
+"athena list-work-groups|"
+
+service_test_1=$(aws athena list-work-groups | wc -l)
+service_test_2=$(aws athena list-data-catalogs | wc -l)
+
+if [[ "$service_test_1" -gt 14 || "$service_test_2" -gt 8 ]]
+then
+  managed_services+="Amazon Athena,"
+fi
+
 
 echo $managed_services | tr "," "\n" | sort
