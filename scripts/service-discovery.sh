@@ -245,7 +245,7 @@ then
   managed_services+="Amazon MediaConvert,"
 fi
 
-service_test=$(aws eyspaces list-keyspaces | wc -l)
+service_test=$(aws keyspaces list-keyspaces | wc -l)
 
 if [ "$service_test" -gt 20 ]
 then
