@@ -76,7 +76,7 @@ services=(
    "qldb list-ledgers|Amazon QLDB"
    "rds describe-db-instances|Amazon RDS (built-in)"
    "redshift describe-clusters|Amazon Redshift"
-   "route53 list-hosted-zones|Amazon Route 53"aws
+   "route53 list-hosted-zones|Amazon Route 53"
    "sesv2 list-email-identities|Amazon Simple Email Service (SES)"
    "sns list-topics|Amazon Simple Notification Service (SNS)"
    "sqs list-queues|Amazon Simple Queue Service (SQS)"
