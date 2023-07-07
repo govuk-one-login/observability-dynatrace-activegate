@@ -252,7 +252,6 @@ then
   managed_services+="Amazon Keyspaces,"
 fi
 
-"athena list-work-groups|"
 
 service_test_1=$(aws athena list-work-groups | wc -l)
 service_test_2=$(aws athena list-data-catalogs | wc -l)
