@@ -261,18 +261,23 @@ then
   managed_services+="Amazon Athena,"
 fi
 
-echo "Managed services \n"
+echo "Managed services"
 echo $managed_services | tr "," "\n" | sort
 
-echo "\nLambda Tags\n"
+echo ""
+echo "Lambda Tags"
+echo ""
 
 lambdas=$(aws lambda list-functions | jq '.Functions[].FunctionName')
 
 for lambda in $lambdas
 do
   lambda=$(echo $lambda | tr -d '"')
-  system=$(aws lambda get-function --function-name $lambda | jq '.Tags.System')
-  environment=$(aws lambda get-function --function-name $lambda | jq '.Tags.Environment')
-  echo "Lambda: $lambda, System: $system, Environment: $environment"
+  
+  if [[ $lambda != "AWSAccelerator-"* ]]; then
+    system=$(aws lambda get-function --function-name $lambda | jq '.Tags.System')
+    environment=$(aws lambda get-function --function-name $lambda | jq '.Tags.Environment')
+    echo "Lambda: $lambda, System: $system, Environment: $environment"
+  fi
 
 done
