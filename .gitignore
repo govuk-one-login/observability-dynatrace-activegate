@@ -13,3 +13,7 @@ test-activegate
 
 # ide
 .vscode
+
+# python
+__pycache__
+.coverage
