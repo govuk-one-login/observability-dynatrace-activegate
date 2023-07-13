@@ -19,4 +19,3 @@ if __name__ == '__main__':
       account_numbers=vars(args)["account_numbers"],
       apply_to_all=vars(args)["apply_to_all"]
    )
-   print(ct.accounts)
