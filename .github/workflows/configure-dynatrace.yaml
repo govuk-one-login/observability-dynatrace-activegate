@@ -27,4 +27,4 @@ jobs:
       # Not printing anything out as it will have account information.
       - run: |
           cd python
-          python dynatrace.py --account-numbers 851012735550
+          python dynatrace.py --account-numbers 910404948720 --ou-name Sandbox
