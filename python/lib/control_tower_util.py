@@ -75,6 +75,8 @@ class ControlTowerUtil():
         while 'NextToken' in response.keys():
             response = self.org.list_organizational_units_for_parent(ParentId=root_id, MaxResults=20, NextToken=response['NextToken'])
             self.iterate_ou_under_root(response=response, ou_name=ou_name)
+            
+        return self.accounts
     
     def iterate_ou_under_root(self, response: dict, ou_name: str):
         """

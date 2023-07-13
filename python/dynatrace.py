@@ -1,5 +1,5 @@
 import argparse
-from lib import control_tower_util, client
+from lib import control_tower_util, client, dynatrace_util
 
 parser = argparse.ArgumentParser()
 
@@ -14,8 +14,10 @@ if __name__ == '__main__':
    
    client = client.Client()
    ct = control_tower_util.ControlTowerUtil(client=client)
-   ct.list_all_accounts_for_ou_under_root(
+   organization_accounts = ct.list_all_accounts_for_ou_under_root(
       ou_name=vars(args)["ou_name"],
       account_numbers=vars(args)["account_numbers"],
       apply_to_all=vars(args)["apply_to_all"]
    )
+   
+   dt = dynatrace_util.DynatraceUtil(organization_accounts=organization_accounts)
