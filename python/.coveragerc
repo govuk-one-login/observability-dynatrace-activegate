@@ -1,0 +1,11 @@
+[run]
+branch = True
+source = ../python
+omit =
+        ./tests/**
+        *__init__*
+        ~/.pyenv/versions/**
+[report]
+exclude_lines = 
+        pragma: no cover
+        if __name__ == .__main__.:

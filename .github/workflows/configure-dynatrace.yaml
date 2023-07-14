@@ -1,0 +1,30 @@
+name: Create and configure Dynatrace connections
+# on a schedule or manually
+# Connect to CT organizations and get all the AWS accounts of interest
+# Get the managed services they use
+# Create or update Dynatrace Connections.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  configure_dynatrace:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip' # caching pip dependencies
+      - run: pip install -r python/requirements.txt
+      - name: Assume AWS Role
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.CT_ORG_READ_ONLY_ROLE_ARN }}
+          aws-region: eu-west-2
+      # Will for now just query Organizations. Looking for no failure.
+      # Not printing anything out as it will have account information.
+      - run: |
+          cd python
+          python dynatrace.py --account-numbers 910404948720 --ou-name Sandbox
