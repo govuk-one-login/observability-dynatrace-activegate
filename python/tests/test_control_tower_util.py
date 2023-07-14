@@ -1,6 +1,6 @@
 import unittest
 from unittest import mock
-from unittest.mock import MagicMock, Mock, _Call
+from unittest.mock import MagicMock, Mock
 from lib import ControlTowerUtil, Client
 
 
