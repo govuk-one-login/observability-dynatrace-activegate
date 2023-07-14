@@ -2,7 +2,7 @@ from lib.client import Client
 
 class ControlTowerUtil():
     
-    def __init__(self, client: Client):
+    def __init__(self, client: Client) -> None:
         """
         Class for interacting with control tower.
 
@@ -14,7 +14,7 @@ class ControlTowerUtil():
         self.accounts = []
         self.limit_to_account_numbers = None
         
-    def set_limit_to_account_numbers(self, account_numbers: str):
+    def set_limit_to_account_numbers(self, account_numbers: str) -> None:
         """
         Set the limit_to_account_numbers.
 
@@ -29,7 +29,7 @@ class ControlTowerUtil():
             
             self.limit_to_account_numbers = self.limit_to_account_numbers + account_numbers_list
         
-    def append_accounts(self, accounts: list):
+    def append_accounts(self, accounts: list) -> None:
         """
         Append accounts onto the class level list of accounts for iteration over later.
 
@@ -44,7 +44,7 @@ class ControlTowerUtil():
         else:
             self.accounts =  self.accounts + accounts
     
-    def list_all_accounts_for_ou_under_root(self, ou_name: str, account_numbers: str, apply_to_all: bool):
+    def list_all_accounts_for_ou_under_root(self, ou_name: str, account_numbers: str, apply_to_all: bool) -> list:
         """
         List all of the accounts for a specified OU that exists under the organization root. 
 
@@ -54,6 +54,7 @@ class ControlTowerUtil():
         :type account_numbers: str.
         :param apply_to_all: Create Dynatrace connections for all accounts under OU.
         :type apply_to_all: bool.
+        :return: List of dicts that represent AWS accounts as under the provided OU.
         """
         
         if account_numbers is not None and apply_to_all:
@@ -78,7 +79,7 @@ class ControlTowerUtil():
             
         return self.accounts
     
-    def iterate_ou_under_root(self, response: dict, ou_name: str):
+    def iterate_ou_under_root(self, response: dict, ou_name: str) -> None:
         """
         Iterate over the OUs the exist under the organization if the named OU is found get the accounts that exist underneath it.
 
@@ -93,7 +94,7 @@ class ControlTowerUtil():
                 self.list_accounts_under_ou(parent_id=ou['Id'])
                 break
         
-    def list_accounts_under_ou(self, parent_id: str):
+    def list_accounts_under_ou(self, parent_id: str) -> None:
         """List the accounts under an OU.
 
         :param parent_id: The Id of the parernt OU.
@@ -113,7 +114,7 @@ class ControlTowerUtil():
             accounts_response = self.org.list_accounts_for_parent(ParentId=parent_id, MaxResults=20, NextToken=accounts_response['NextToken'])
             self.append_accounts(accounts=accounts_response['Accounts'])
         
-    def iterate_child_ous(self, ou_response: dict):
+    def iterate_child_ous(self, ou_response: dict) -> None:
         """Iterate the over the child OUs of an OU.
 
         :param ou_response: The response from the organization units for parenets command.

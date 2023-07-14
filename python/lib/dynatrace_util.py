@@ -7,9 +7,23 @@ class DynatraceUtil():
                  prod_token: str,
                  non_prod_env_name: str, 
                  non_prod_token: str,
-                 dynatrace_iam_role: str):
+                 dynatrace_iam_role: str) -> None:
+        """_summary_
+
+        :param organization_accounts: AWS accounts to manage connections for.
+        :type organization_accounts: list
+        :param prod_env_name: The name of the prod dynatrace environment.
+        :type prod_env_name: str
+        :param prod_token: The token to use to connect to prod dynatrace.
+        :type prod_token: str
+        :param non_prod_env_name: The name of the non prod dynatrace environment.
+        :type non_prod_env_name: str
+        :param non_prod_token: The token to use to connect to non prod dynatrace.
+        :type non_prod_token: str
+        :param dynatrace_iam_role:The IAM role that Dynatrace will use as part of its connection.
+        :type dynatrace_iam_role: str
+        """
                 
-        
         self.organization_accounts = organization_accounts
         self.prod_env_name = prod_env_name
         self.prod_token = prod_token
@@ -18,6 +32,10 @@ class DynatraceUtil():
         self.dynatrace_iam_role = dynatrace_iam_role
         
     def configure_connections(self):
+        """
+        Create the Dynatrace connections if the don't exist and configure the associated
+        managed services.
+        """
         
         prod_connection_names = self.get_existing_credential_names(
             env=self.prod_env_name,
@@ -48,7 +66,17 @@ class DynatraceUtil():
                             token=self.non_prod_token,
                             account=account)  
     
-    def get_existing_credential_names(self, env: str, token: str): 
+    def get_existing_credential_names(self, env: str, token: str) -> list: 
+        """
+        Get the names of the existing connections from Dynatrace.  
+
+        :param env: The Dynatrace environment name.
+        :type env: str
+        :param token: The token to use for Authentication.
+        :type token: str
+        :return: The names of the existing connections.
+        :rtype: list
+        """
         url = f'https://{env}.live.dynatrace.com/api/config/v1/aws/credentials'
             
         Headers = {
@@ -64,13 +92,33 @@ class DynatraceUtil():
         
         return credentials
     
-    def check_if_connection_exists(self, account: dict, connection_names: list):
+    def check_if_connection_exists(self, account: dict, connection_names: list) -> bool:
+        """
+        Check if a connection to dynatrace already exists for an AWS account.
+
+        :param account: The AWS account information
+        :type account: dict
+        :param connection_names: Existing connection names.
+        :type connection_names: list
+        :return: Indicates if the connection exist or not.
+        :rtype: bool
+        """
         if account['Name'] in connection_names:
             return True
         
         return False
 
-    def create_new_credential(self, env: str, token: str, account: dict):
+    def create_new_credential(self, env: str, token: str, account: dict) -> None:
+        """
+        Create a new Dynatrace connection. 
+
+        :param env: The dynatrace environment name.
+        :type env: str
+        :param token: The token to use for authentication.
+        :type token: str
+        :param account: The AWS account information
+        :type account: dict
+        """
         url = f'https://{env}.live.dynatrace.com/api/config/v1/aws/credentials'
             
         Headers = {

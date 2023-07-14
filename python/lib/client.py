@@ -2,7 +2,7 @@ import boto3
 
 class Client():
    
-   def __init__(self):
+   def __init__(self) -> None:
        """
        Implementation of a Multiton pattern for the boto3 client to allow for easier testing.
        """
