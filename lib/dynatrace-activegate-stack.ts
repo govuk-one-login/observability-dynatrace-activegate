@@ -28,14 +28,16 @@ export class DynatraceActivegateStack extends cdk.Stack {
       './Dynatrace-OneAgent-Linux-x86.sh'
     );
 
-    const asg = new autoscaling.AutoScalingGroup(this, 'asg', {
+    const amiId = process.env.AMI_ID;
+    const asg   = new autoscaling.AutoScalingGroup(this, 'asg', {
       vpc,
       instanceType: ec2.InstanceType.of(
         ec2.InstanceClass.M6A,
         ec2.InstanceSize.LARGE
       ),
-      machineImage: new ec2.AmazonLinuxImage({
-        generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2
+      
+      machineImage: ec2.MachineImage.genericLinux({
+        'eu-west-2': '${amiId}',
       }),
       maxCapacity: 1,
       minCapacity: 1,
