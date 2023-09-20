@@ -8,6 +8,8 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+  Schedule: 
+    -cron: '0 11 * * 3' # Runs every Wednesday at 11am
 
 jobs:
   test:
@@ -37,7 +39,7 @@ jobs:
           cdk_subcommand: 'synth'
           cdk_version: '2.83.1'
           working_dir: 'cdk.out'
-          cdk_stack: DynatraceMonitoringRoleStack
+          cdk_stack: DynatraceActivegateStack
           actions_comment: false
       - name: Run Checkov action
         uses: bridgecrewio/checkov-action@v12
@@ -74,6 +76,7 @@ jobs:
           echo "amiId=$LATEST_AMI" >> $GITHUB_OUTPUT
         env:
           AWS_DEFAULT_REGION: eu-west-2
+          # Product ID belongs to the aws marketplace owner and is unique to the ami offering
           PRODUCT_ID: "c41d38c4-3f6a-4434-9a86-06dd331d3f9c"
       - name: cdk synth
         uses: youyo/aws-cdk-github-actions@v2
@@ -81,7 +84,7 @@ jobs:
           cdk_subcommand: 'synth'
           cdk_version: '2.83.1'
           working_dir: 'cdk.out'
-          cdk_stack: DynatraceMonitoringRoleStack
+          cdk_stack: DynatraceActivegateStack
           actions_comment: false
         env:
           AMI_ID: ${{ steps.hardened-ami.outputs.amiId }}                  
@@ -107,11 +110,18 @@ jobs:
           echo "ids=$ACCOUNT_IDS" >> "$GITHUB_OUTPUT"
         env:
           AWS_DEFAULT_REGION: eu-west-2
+      - name: Check Current AMI Id
+        id: check-current-ami-id
+        run: |
+          PREVIOUS_AMI=$(grep -i "ami-" cdk.out/tree.json | awk '{ print $2 }' | tr -d '",,')
+          echo "amiId=$PREVIOUS_AMI" >> "$GITHUB_OUTPUT"    
       - name: Create Stack Set and instances
+        # condition that will skip the deployment if the ami doesn't need to be updated
+        if: ${{ steps.hardened-ami.outputs.amiId }} == ${{ steps.check-current-ami-id.outputs.amiId }}
         run: |
           # Create the new stack set
           aws cloudformation create-stack-set --stack-set-name di-devplat-obv-dynatrace-iam-${{ steps.hyphenate-version.outputs.release }} \
-          --template-body file://cdk.out/DynatraceMonitoringRoleStack.template.json \
+          --template-body file://cdk.out/DynatraceActivegateStack.template.json \
           --description 'Stack set that grants Dynatrace permission to pull metrics' \
           --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
           --administration-role-arn arn:aws:iam::684469894301:role/AWSCloudFormationStackSetAdministrationRole \
