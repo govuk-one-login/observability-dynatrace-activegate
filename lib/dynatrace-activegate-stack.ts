@@ -39,8 +39,9 @@ export class DynatraceActivegateStack extends cdk.Stack {
       machineImage: ec2.MachineImage.genericLinux({
         'eu-west-2': '${amiId}',
       }),
-      maxCapacity: 1,
-      minCapacity: 1,
+      maxCapacity: 3,
+      minCapacity: 2,
+      desiredCapacity: 2,
       userData
     });
 

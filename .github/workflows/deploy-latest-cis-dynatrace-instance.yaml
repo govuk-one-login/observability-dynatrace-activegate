@@ -1,0 +1,97 @@
+name: Deply latest CIS Dyntrace instances
+# On a cron if the CIS image has changed then deploy an 
+# new version of dyntrace on using the image
+
+on:
+  workflow_dispatch:
+  schedule: 
+     # Runs every Wednesday at 11:09
+    - cron: '09 11 * * 3' 
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.18.0'
+      - name: Install node dependencies
+        run: npm ci
+      - name: Run Jest Tests
+        run: npm test
+
+  validate:
+    runs-on: ubuntu-latest
+    needs: 
+      - test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install node dependencies
+        run: npm ci
+      - name: cdk synth
+        run: |
+          npm install
+          npm run cdk synth DynatraceActivegateStack
+      - name: Run Checkov action
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: cdk.out/
+          framework: cloudformation
+          # skip_check: CKV_AWS_107,CKV_AWS_111
+
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    needs: 
+      - validate
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Assume AWS Role
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          #role-to-assume: ${{ secrets.DT_GH_ACTIONS_ROLE_ARN }}
+          role-to-assume: ${{ secrets.DT_GH_ACTIONS_SANDBOX_ROLE_ARN }}
+          aws-region: eu-west-2
+          role-duration-seconds: 7200
+      - name: Search latest hardened AMI
+        id: hardened-ami
+        run: |
+          LATEST-AMI=$(aws ec2 describe-images \
+          --owners aws-marketplace \
+          --filters 'Name=name,Values=*'${PRODUCT_ID}'*' \
+          --query 'Images[*].[ImageId,CreationDate]' --output text | sort -k2 -r | head -n1 | awk '{ print $1 }')
+          echo "amiId=$LATEST_AMI" >> $GITHUB_OUTPUT
+        env:
+          AWS_DEFAULT_REGION: eu-west-2
+          # Product ID belongs to the aws marketplace owner and is unique to the ami offering
+          PRODUCT_ID: "c41d38c4-3f6a-4434-9a86-06dd331d3f9c"
+      # - name: Account ids
+      #   id: account_ids
+      #   run: |
+      #     ACCOUNT_IDS=074300971915
+      #     # ACCOUNT_IDS=$(aws cloudformation list-stack-instances --stack-set-name ${{ steps.previous_stack_set.outputs.name }} --query "Summaries[*].Account" | jq -c . | sed -e 's/,/ /g' | tr -d '[]')
+      #     echo "ids=$ACCOUNT_IDS" >> "$GITHUB_OUTPUT"
+      #   env:
+      #     AWS_DEFAULT_REGION: eu-west-2
+      - name: Check Current AMI Id
+        id: check-current-ami-id
+        run: |
+          PREVIOUS_AMI=$(grep -i "ami-" cdk.out/tree.json | awk '{ print $2 }' | tr -d '",,')
+          echo "amiId=$PREVIOUS_AMI" >> "$GITHUB_OUTPUT"    
+      - name: Deploy Latest EC2
+        # condition that will skip the deployment if the ami doesn't need to be updated
+        if: ${{ steps.hardened-ami.outputs.amiId }} == ${{ steps.check-current-ami-id.outputs.amiId }}
+        run: |
+          npm install
+          npm run cdk deploy DynatraceActivegateStack
+        env:
+          AWS_DEFAULT_REGION: eu-west-2
