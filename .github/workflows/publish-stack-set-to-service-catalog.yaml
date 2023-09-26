@@ -66,7 +66,7 @@ jobs:
       - name: Search latest hardened AMI
         id: hardened-ami
         run: |
-          export LATEST-AMI=$(aws ec2 describe-images \
+          LATEST_AMI=$(aws ec2 describe-images \
           --owners aws-marketplace \
           --filters 'Name=name,Values=*'${PRODUCT_ID}'*' \
           --query 'Images[*].[ImageId,CreationDate]' --output text | sort -k2 -r | head -n1 | awk '{ print $1 }')
