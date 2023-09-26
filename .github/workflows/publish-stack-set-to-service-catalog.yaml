@@ -66,6 +66,9 @@ jobs:
       - name: right account
         run: |
           aws sts get-caller-identity
+        env:
+          AWS_REGION: eu-west-2
+          AWS_DEFAULT_REGION: eu-west-2
       - name: Search latest hardened AMI
         id: hardened-ami
         run: |
