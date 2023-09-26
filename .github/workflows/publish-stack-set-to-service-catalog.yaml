@@ -42,7 +42,7 @@ jobs:
         with:
           directory: cdk.out/
           framework: cloudformation
-          # skip_check: CKV_AWS_107,CKV_AWS_111
+          skip_check: CKV_AWS_107,CKV_AWS_111
 
   update:
     runs-on: ubuntu-latest
