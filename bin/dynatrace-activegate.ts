@@ -11,7 +11,7 @@ const dynatraceActivegateStack = new DynatraceActivegateStack(
   app,
   'DynatraceActivegateStack',
   {
-    env: { account: '841529299698', region: 'eu-west-2' }
+    env: {  }
   }
 );
 

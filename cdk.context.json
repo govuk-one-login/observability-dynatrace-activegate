@@ -8,5 +8,10 @@
     "eu-west-2a",
     "eu-west-2b",
     "eu-west-2c"
+  ],
+  "availability-zones:account=074300971915:region=eu-west-2": [
+    "eu-west-2a",
+    "eu-west-2b",
+    "eu-west-2c"
   ]
 }
