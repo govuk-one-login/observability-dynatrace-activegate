@@ -41,7 +41,6 @@ export class DynatraceActivegateStack extends cdk.Stack {
       }),
       maxCapacity: 3,
       minCapacity: 2,
-      desiredCapacity: 2,
       userData
     });
 
