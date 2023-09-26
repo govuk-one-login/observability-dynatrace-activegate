@@ -1,4 +1,5 @@
-name: Deply latest CIS Dyntrace instances
+# name: Deply latest CIS Dyntrace instances
+name: Publish Stack Set and stack instances
 # On a cron if the CIS image has changed then deploy an 
 # new version of dyntrace on using the image
 
