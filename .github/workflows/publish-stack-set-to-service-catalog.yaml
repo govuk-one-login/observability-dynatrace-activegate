@@ -63,7 +63,7 @@ jobs:
           #role-to-assume: ${{ secrets.DT_GH_ACTIONS_ROLE_ARN }}
           role-to-assume: ${{ secrets.DT_GH_ACTIONS_SANDBOX_ROLE_ARN }}
           aws-region: eu-west-2
-          role-duration-seconds: 7200
+          role-duration-seconds: 1800
       - name: Search latest hardened AMI
         id: hardened-ami
         run: |
