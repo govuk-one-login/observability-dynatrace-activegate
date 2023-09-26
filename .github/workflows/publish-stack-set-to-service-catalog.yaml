@@ -70,7 +70,7 @@ jobs:
           --owners aws-marketplace \
           --filters 'Name=name,Values=*'${PRODUCT_ID}'*' \
           --query 'Images[*].[ImageId,CreationDate]' --output text | sort -k2 -r | head -n1 | awk '{ print $1 }')
-          echo "amiId=$LATEST_AMI" >> $GITHUB_OUTPUT
+          echo "amiId=$LATEST_AMI" >> "$GITHUB_OUTPUT"
         env:
           AWS_DEFAULT_REGION: eu-west-2
           # Product ID belongs to the aws marketplace owner and is unique to the ami offering
