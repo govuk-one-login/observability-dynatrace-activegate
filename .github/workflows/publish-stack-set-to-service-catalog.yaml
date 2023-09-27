@@ -100,7 +100,9 @@ jobs:
         run: |
           npm install
           npm run cdk synth DynatraceActivegateStack
-          aws cloudformation create-stack --stack-name DynatraceActivegateStack --template-body file://cdk.out/DynatraceActivegateStack.template.json --capabilities CAPABILITY_IAM
+          aws cloudformation create-stack --stack-name DynatraceActivegateStack \
+          --template-body file://cdk.out/DynatraceActivegateStack.template.json \
+          --capabilities CAPABILITY_IAM --parameters "ParameterKey=amiId,ParameterValue=${{ steps.hardened-ami.outputs.amiId }}"
         env:
           AWS_REGION: eu-west-2
           AWS_DEFAULT_REGION: eu-west-2
