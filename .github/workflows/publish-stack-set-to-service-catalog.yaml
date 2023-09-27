@@ -98,9 +98,9 @@ jobs:
         # condition that will skip the deployment if the ami doesn't need to be updated
         if: ${{ steps.hardened-ami.outputs.amiId }} == ${{ steps.check-current-ami-id.outputs.amiId }}
         run: |
-          aws sts assume-role --role-arn arn:aws:iam::074300971915:role/cdk-hnb659fds-deploy-role-074300971915-eu-west-2 --role-session-name github-deploy
           npm install
-          npm run cdk deploy DynatraceActivegateStack
+          npm run cdk synth DynatraceActivegateStack
+          aws cloudformation create-stack --stack-name DynatraceActivegateStack --template-body file://cdk.out/DynatraceActivegateStack.template.json
         env:
           AWS_REGION: eu-west-2
           AWS_DEFAULT_REGION: eu-west-2
