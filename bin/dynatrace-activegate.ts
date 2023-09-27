@@ -9,11 +9,7 @@ import { DynatraceSSMNonProdStack } from '../lib/dynatrace-ssm-nonprod';
 const app = new cdk.App();
 const dynatraceActivegateStack = new DynatraceActivegateStack(
   app,
-  'DynatraceActivegateStack',
-  {
-    env: {  }
-  }
-);
+  'DynatraceActivegateStack',{});
 
 new DynatraceMonitoringRoleStack(app, 'DynatraceMonitoringRoleStack', {
   synthesizer: new cdk.CliCredentialsStackSynthesizer(),

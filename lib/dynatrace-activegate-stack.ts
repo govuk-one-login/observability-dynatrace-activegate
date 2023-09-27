@@ -28,7 +28,12 @@ export class DynatraceActivegateStack extends cdk.Stack {
       './Dynatrace-OneAgent-Linux-x86.sh'
     );
 
-    const amiId = process.env.AMI_ID;
+    
+    const amiId = new cdk.CfnParameter(this, "amiId", {
+      type: "String",
+      description: "The name of the AMI to use"}
+    );
+
     const asg   = new autoscaling.AutoScalingGroup(this, 'asg', {
       vpc,
       instanceType: ec2.InstanceType.of(
@@ -37,7 +42,7 @@ export class DynatraceActivegateStack extends cdk.Stack {
       ),
       
       machineImage: ec2.MachineImage.genericLinux({
-        'eu-west-2': '${amiId}',
+        'eu-west-2': amiId.valueAsString,
       }),
       maxCapacity: 3,
       minCapacity: 2,
