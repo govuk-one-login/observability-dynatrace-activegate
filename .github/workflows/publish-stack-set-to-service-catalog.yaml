@@ -63,12 +63,6 @@ jobs:
           role-to-assume: ${{ secrets.DT_GH_ACTIONS_SANDBOX_ROLE_ARN }}
           aws-region: eu-west-2
           role-duration-seconds: 1800
-      - name: right account
-        run: |
-          aws sts get-caller-identity
-        env:
-          AWS_REGION: eu-west-2
-          AWS_DEFAULT_REGION: eu-west-2
       - name: Search latest hardened AMI
         id: hardened-ami
         run: |
@@ -102,7 +96,7 @@ jobs:
           npm run cdk synth DynatraceActivegateStack
           aws cloudformation create-stack --stack-name DynatraceActivegateStack \
           --template-body file://cdk.out/DynatraceActivegateStack.template.json \
-          --capabilities CAPABILITY_IAM --parameters "ParameterKey=amiId,ParameterValue=${{ steps.hardened-ami.outputs.amiId }}"
+          --capabilities CAPABILITY_IAM --parameters 'ParameterKey=amiId,ParameterValue="${{ steps.hardened-ami.outputs.amiId }}"'
         env:
           AWS_REGION: eu-west-2
           AWS_DEFAULT_REGION: eu-west-2
