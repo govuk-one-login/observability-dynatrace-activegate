@@ -133,6 +133,7 @@ jobs:
           aws cloudformation update-stack --stack-name DynatraceActivegateStack \
           --template-body file://cdk.out/DynatraceActivegateStack.template.json \
           --capabilities CAPABILITY_IAM
+          aws cloudformation wait stack-update-complete --stack-name DynatraceActivegateStack
         env:
           AWS_REGION: eu-west-2
           AWS_DEFAULT_REGION: eu-west-2
@@ -142,6 +143,7 @@ jobs:
         run: |
           ASG=$(aws autoscaling describe-auto-scaling-groups --filters Name=tag:Name,Values=DynatraceActivegateStack/asg | jq ".AutoScalingGroups[0].AutoScalingGroupName" -r)
           sed -i 's/"AutoScalingGroupName": ""/"AutoScalingGroupName": "$ASG"/' instance-refresh.json
+          aws autoscaling start-instance-refresh --cli-input-json file://instance-refresh.json
         env:
           AWS_REGION: eu-west-2
           AWS_DEFAULT_REGION: eu-west-2
