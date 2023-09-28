@@ -1,7 +1,7 @@
 # name: Deply latest CIS Dyntrace instances
 name: Publish Stack Set and stack instances
 # On a cron if the CIS image has changed then deploy an 
-# new version of dyntrace on using the image
+# new version of dyntrace on using the image and restart the instances
 
 on:
   workflow_dispatch:
@@ -142,9 +142,7 @@ jobs:
         if: steps.hardened-ami.outputs.amiId != steps.check-current-ami-id.outputs.amiId
         run: |
           ASG=$(aws autoscaling describe-auto-scaling-groups --filters Name=tag:Name,Values=DynatraceActivegateStack/asg | jq ".AutoScalingGroups[0].AutoScalingGroupName" -r)
-          echo $ASG
           sed -i 's|"AutoScalingGroupName": ""|"AutoScalingGroupName": "'${ASG}'"|' instance-refresh.json
-          cat instance-refresh.json
           aws autoscaling start-instance-refresh --cli-input-json file://instance-refresh.json
         env:
           AWS_REGION: eu-west-2
