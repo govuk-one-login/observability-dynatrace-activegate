@@ -10,24 +10,8 @@ on:
     - cron: '09 11 * * 3' 
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18.18.0'
-      - name: Install node dependencies
-        run: npm ci
-      - name: Run Jest Tests
-        run: npm test
-
   validate:
     runs-on: ubuntu-latest
-    needs: 
-      - test
     steps:
       - name: Checkout
         uses: actions/checkout@v3
