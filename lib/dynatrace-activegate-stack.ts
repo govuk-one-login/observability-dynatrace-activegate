@@ -28,17 +28,18 @@ export class DynatraceActivegateStack extends cdk.Stack {
       './Dynatrace-OneAgent-Linux-x86.sh'
     );
 
-    const asg = new autoscaling.AutoScalingGroup(this, 'asg', {
+    const asg  = new autoscaling.AutoScalingGroup(this, 'asg', {
       vpc,
       instanceType: ec2.InstanceType.of(
-        ec2.InstanceClass.M6A,
+        ec2.InstanceClass.M5A,
         ec2.InstanceSize.LARGE
       ),
-      machineImage: new ec2.AmazonLinuxImage({
-        generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2
+      
+      machineImage: ec2.MachineImage.genericLinux({
+        'eu-west-2': this.node.tryGetContext('amiId')
       }),
-      maxCapacity: 1,
-      minCapacity: 1,
+      maxCapacity: 3,
+      minCapacity: 2,
       userData
     });
 
@@ -47,6 +48,7 @@ export class DynatraceActivegateStack extends cdk.Stack {
       'dynatrace-token',
       'dynatrace-token'
     );
+
     const dynatraceUrl = secretsmanager.Secret.fromSecretNameV2(
       this,
       'dynatrace-url',
