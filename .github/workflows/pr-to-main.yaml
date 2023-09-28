@@ -26,8 +26,8 @@ jobs:
       - name: Assume AWS Role
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          #role-to-assume: ${{ secrets.DT_GH_ACTIONS_ROLE_ARN }}
-          role-to-assume: ${{ secrets.DT_GH_ACTIONS_SANDBOX_ROLE_ARN }}
+          role-to-assume: ${{ secrets.DT_GH_ACTIONS_NON_PROD_ROLE_ARN }}
+          #role-to-assume: ${{ secrets.DT_GH_ACTIONS_SANDBOX_ROLE_ARN }}
           aws-region: eu-west-2
           role-duration-seconds: 1800
       - name: Search latest hardened AMI
@@ -59,8 +59,8 @@ jobs:
       - name: Assume AWS Role
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          #role-to-assume: ${{ secrets.DT_GH_ACTIONS_ROLE_ARN }}
-          role-to-assume: ${{ secrets.DT_GH_ACTIONS_SANDBOX_ROLE_ARN }}
+          role-to-assume: ${{ secrets.DT_GH_ACTIONS_NON_PROD_ROLE_ARN }}
+          #role-to-assume: ${{ secrets.DT_GH_ACTIONS_SANDBOX_ROLE_ARN }}
           aws-region: eu-west-2
           role-duration-seconds: 1800
       - name: Search latest hardened AMI

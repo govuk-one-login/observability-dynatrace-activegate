@@ -25,8 +25,8 @@ jobs:
       - name: Assume AWS Role
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          #role-to-assume: ${{ secrets.DT_GH_ACTIONS_ROLE_ARN }}
-          role-to-assume: ${{ secrets.DT_GH_ACTIONS_SANDBOX_ROLE_ARN }}
+          role-to-assume: ${{ secrets.DT_GH_ACTIONS_NON_PROD_ROLE_ARN }}
+          #role-to-assume: ${{ secrets.DT_GH_ACTIONS_SANDBOX_ROLE_ARN }}
           aws-region: eu-west-2
           role-duration-seconds: 1800
       - name: Search latest hardened AMI
@@ -60,8 +60,8 @@ jobs:
       - name: Assume AWS Role
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          #role-to-assume: ${{ secrets.DT_GH_ACTIONS_ROLE_ARN }}
-          role-to-assume: ${{ secrets.DT_GH_ACTIONS_SANDBOX_ROLE_ARN }}
+          role-to-assume: ${{ secrets.DT_GH_ACTIONS_NON_PROD_ROLE_ARN }}
+          #role-to-assume: ${{ secrets.DT_GH_ACTIONS_SANDBOX_ROLE_ARN }}
           aws-region: eu-west-2
           role-duration-seconds: 1800
       - name: Search latest hardened AMI
@@ -88,7 +88,7 @@ jobs:
           framework: cloudformation
           skip_check: CKV_AWS_107,CKV_AWS_111
 
-  update:
+  update-non-prod:
     runs-on: ubuntu-latest
     needs: 
       - validate
@@ -100,8 +100,8 @@ jobs:
       - name: Assume AWS Role
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          #role-to-assume: ${{ secrets.DT_GH_ACTIONS_ROLE_ARN }}
-          role-to-assume: ${{ secrets.DT_GH_ACTIONS_SANDBOX_ROLE_ARN }}
+          role-to-assume: ${{ secrets.DT_GH_ACTIONS_NON_PROD_ROLE_ARN }}
+          #role-to-assume: ${{ secrets.DT_GH_ACTIONS_SANDBOX_ROLE_ARN }}
           aws-region: eu-west-2
           role-duration-seconds: 1800
       - name: Search latest hardened AMI
@@ -136,7 +136,6 @@ jobs:
         env:
           AWS_REGION: eu-west-2
           AWS_DEFAULT_REGION: eu-west-2
-
       - name: Restart Instances
         if: steps.hardened-ami.outputs.amiId != steps.check-current-ami-id.outputs.amiId
         run: |
@@ -146,3 +145,63 @@ jobs:
         env:
           AWS_REGION: eu-west-2
           AWS_DEFAULT_REGION: eu-west-2
+
+  update-prod:
+    runs-on: ubuntu-latest
+    needs: 
+      - update-non-prod
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Assume AWS Role
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.DT_GH_ACTIONS_PROD_ROLE_ARN }}
+          #role-to-assume: ${{ secrets.DT_GH_ACTIONS_SANDBOX_ROLE_ARN }}
+          aws-region: eu-west-2
+          role-duration-seconds: 1800
+      - name: Search latest hardened AMI
+        id: hardened-ami
+        run: |
+          LATEST_AMI=$(aws ec2 describe-images \
+          --owners aws-marketplace \
+          --filters 'Name=name,Values=*'${PRODUCT_ID}'*' \
+          --query 'Images[*].[ImageId,CreationDate]' --output text | sort -k2 -r | head -n1 | awk '{ print $1 }')
+          echo "amiId=$LATEST_AMI" >> "$GITHUB_OUTPUT"
+        env:
+          AWS_DEFAULT_REGION: eu-west-2
+          # Product ID belongs to the aws marketplace owner and is unique to the ami offering
+          PRODUCT_ID: "c41d38c4-3f6a-4434-9a86-06dd331d3f9c"
+      - name: Check Current AMI Id
+        id: check-current-ami-id
+        run: |
+          INSTANCE_ID=$(aws autoscaling describe-auto-scaling-groups --filters Name=tag:Name,Values=DynatraceActivegateStack/asg | jq ".AutoScalingGroups[0].Instances[0].InstanceId" -r)
+          PREVIOUS_AMI=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID | jq ".Reservations[0].Instances[0].ImageId" -r)
+          echo "amiId=$PREVIOUS_AMI" >> "$GITHUB_OUTPUT"    
+      - name: Deploy Latest EC2
+        # condition that will skip the deployment if the ami doesn't need to be updated
+        if: steps.hardened-ami.outputs.amiId != steps.check-current-ami-id.outputs.amiId
+        run: |
+          sed -i 's/"amiId": ""/"amiId": "${{steps.hardened-ami.outputs.amiId}}"/' cdk.context.json
+          npm install
+          npm run cdk synth DynatraceActivegateStack
+          aws cloudformation update-stack --stack-name DynatraceActivegateStack \
+          --template-body file://cdk.out/DynatraceActivegateStack.template.json \
+          --capabilities CAPABILITY_IAM
+          aws cloudformation wait stack-update-complete --stack-name DynatraceActivegateStack
+        env:
+          AWS_REGION: eu-west-2
+          AWS_DEFAULT_REGION: eu-west-2
+      - name: Restart Instances
+        if: steps.hardened-ami.outputs.amiId != steps.check-current-ami-id.outputs.amiId
+        run: |
+          ASG=$(aws autoscaling describe-auto-scaling-groups --filters Name=tag:Name,Values=DynatraceActivegateStack/asg | jq ".AutoScalingGroups[0].AutoScalingGroupName" -r)
+          sed -i 's|"AutoScalingGroupName": ""|"AutoScalingGroupName": "'${ASG}'"|' instance-refresh.json
+          aws autoscaling start-instance-refresh --cli-input-json file://instance-refresh.json
+        env:
+          AWS_REGION: eu-west-2
+          AWS_DEFAULT_REGION: eu-west-2
+
+
