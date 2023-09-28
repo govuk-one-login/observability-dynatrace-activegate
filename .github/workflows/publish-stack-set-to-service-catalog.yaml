@@ -19,6 +19,13 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18.18.0'
+      - name: Assume AWS Role
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          #role-to-assume: ${{ secrets.DT_GH_ACTIONS_ROLE_ARN }}
+          role-to-assume: ${{ secrets.DT_GH_ACTIONS_SANDBOX_ROLE_ARN }}
+          aws-region: eu-west-2
+          role-duration-seconds: 1800
       - name: Search latest hardened AMI
         id: hardened-ami
         run: |
@@ -47,6 +54,13 @@ jobs:
         uses: actions/checkout@v3
       - name: Install node dependencies
         run: npm ci
+      - name: Assume AWS Role
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          #role-to-assume: ${{ secrets.DT_GH_ACTIONS_ROLE_ARN }}
+          role-to-assume: ${{ secrets.DT_GH_ACTIONS_SANDBOX_ROLE_ARN }}
+          aws-region: eu-west-2
+          role-duration-seconds: 1800
       - name: Search latest hardened AMI
         id: hardened-ami
         run: |
