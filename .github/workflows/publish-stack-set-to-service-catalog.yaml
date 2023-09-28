@@ -92,9 +92,10 @@ jobs:
         # condition that will skip the deployment if the ami doesn't need to be updated
         if: ${{ steps.hardened-ami.outputs.amiId }} == ${{ steps.check-current-ami-id.outputs.amiId }}
         run: |
+          sed -i 's/"amiId": ""/"amiId": "${{steps.hardened-ami.outputs.amiId}}"/' cdk.context.json
           npm install
           npm run cdk synth DynatraceActivegateStack
-          aws cloudformation create-stack --stack-name DynatraceActivegateStack \
+          aws cloudformation update-stack --stack-name DynatraceActivegateStack \
           --template-body file://cdk.out/DynatraceActivegateStack.template.json \
           --capabilities CAPABILITY_IAM --parameters 'ParameterKey=amiId,ParameterValue="${{ steps.hardened-ami.outputs.amiId }}"'
         env:
