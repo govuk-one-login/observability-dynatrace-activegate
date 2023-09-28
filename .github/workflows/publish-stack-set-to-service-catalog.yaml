@@ -127,17 +127,21 @@ jobs:
         # condition that will skip the deployment if the ami doesn't need to be updated
         if: steps.hardened-ami.outputs.amiId != steps.check-current-ami-id.outputs.amiId
         run: |
-          echo "----"
-          echo .${{ steps.hardened-ami.outputs.amiId }}.
-          echo "----"
-          echo .${{ steps.check-current-ami-id.outputs.amiId }}.
-          echo "----"
           sed -i 's/"amiId": ""/"amiId": "${{steps.hardened-ami.outputs.amiId}}"/' cdk.context.json
           npm install
           npm run cdk synth DynatraceActivegateStack
           aws cloudformation update-stack --stack-name DynatraceActivegateStack \
           --template-body file://cdk.out/DynatraceActivegateStack.template.json \
           --capabilities CAPABILITY_IAM
+        env:
+          AWS_REGION: eu-west-2
+          AWS_DEFAULT_REGION: eu-west-2
+
+      - name: Restart Instances
+        if: steps.hardened-ami.outputs.amiId != steps.check-current-ami-id.outputs.amiId
+        run: |
+          ASG=$(aws autoscaling describe-auto-scaling-groups --filters Name=tag:Name,Values=DynatraceActivegateStack/asg | jq ".AutoScalingGroups[0].AutoScalingGroupName" -r)
+          sed -i 's/"AutoScalingGroupName": ""/"AutoScalingGroupName": "$ASG"/' instance-refresh.json
         env:
           AWS_REGION: eu-west-2
           AWS_DEFAULT_REGION: eu-west-2
