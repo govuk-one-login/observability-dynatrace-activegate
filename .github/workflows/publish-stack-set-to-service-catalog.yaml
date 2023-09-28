@@ -142,7 +142,9 @@ jobs:
         if: steps.hardened-ami.outputs.amiId != steps.check-current-ami-id.outputs.amiId
         run: |
           ASG=$(aws autoscaling describe-auto-scaling-groups --filters Name=tag:Name,Values=DynatraceActivegateStack/asg | jq ".AutoScalingGroups[0].AutoScalingGroupName" -r)
-          sed -i 's/"AutoScalingGroupName": ""/"AutoScalingGroupName": "$ASG"/' instance-refresh.json
+          echo $ASG
+          sed -i 's/"AutoScalingGroupName": ""/"AutoScalingGroupName": "${ASG}"/' instance-refresh.json
+          cat instance-refresh.json
           aws autoscaling start-instance-refresh --cli-input-json file://instance-refresh.json
         env:
           AWS_REGION: eu-west-2
