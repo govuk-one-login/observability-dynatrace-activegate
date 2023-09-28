@@ -12,7 +12,7 @@ export class DynatraceActivegateStack extends cdk.Stack {
     super(scope, id, props);
 
     const vpc = new ec2.Vpc(this, 'vpc', {
-      maxAzs: 3
+      maxAzs: 1
     });
 
     const userData = ec2.UserData.forLinux();
