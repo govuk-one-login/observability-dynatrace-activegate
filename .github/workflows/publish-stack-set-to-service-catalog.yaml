@@ -125,7 +125,7 @@ jobs:
           echo "amiId=$PREVIOUS_AMI" >> "$GITHUB_OUTPUT"    
       - name: Deploy Latest EC2
         # condition that will skip the deployment if the ami doesn't need to be updated
-        if: ${{ steps.hardened-ami.outputs.amiId }} == ${{ steps.check-current-ami-id.outputs.amiId }}
+        if: ${{ steps.hardened-ami.outputs.amiId }} != ${{ steps.check-current-ami-id.outputs.amiId }}
         run: |
           sed -i 's/"amiId": ""/"amiId": "${{steps.hardened-ami.outputs.amiId}}"/' cdk.context.json
           npm install

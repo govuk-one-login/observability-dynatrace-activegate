@@ -31,17 +31,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: cdk synth
-        uses: youyo/aws-cdk-github-actions@v2
+      - name: Assume AWS Role
+        uses: aws-actions/configure-aws-credentials@v2
         with:
-          cdk_subcommand: 'synth'
-          cdk_version: '2.83.1'
-          working_dir: 'cdk.out'
-          cdk_stack: DynatraceMonitoringRoleStack
-          actions_comment: false
+          #role-to-assume: ${{ secrets.DT_GH_ACTIONS_ROLE_ARN }}
+          role-to-assume: ${{ secrets.DT_GH_ACTIONS_SANDBOX_ROLE_ARN }}
+          aws-region: eu-west-2
+          role-duration-seconds: 1800
+      - name: cdk synth
+        run: |
+          sed -i 's/"amiId": ""/"amiId": "${{steps.hardened-ami.outputs.amiId}}"/' cdk.context.json
+          npm install
+          npm run cdk synth DynatraceActivegateStack
       - name: Run Checkov action
         uses: bridgecrewio/checkov-action@v12
         with:
           directory: cdk.out/
           framework: cloudformation
-          skip_check: CKV_AWS_107,CKV_AWS_111
+          #skip_check: CKV_AWS_107,CKV_AWS_111
