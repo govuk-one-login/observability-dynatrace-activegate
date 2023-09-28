@@ -127,6 +127,11 @@ jobs:
         # condition that will skip the deployment if the ami doesn't need to be updated
         if: ${{ steps.hardened-ami.outputs.amiId }} != ${{ steps.check-current-ami-id.outputs.amiId }}
         run: |
+          echo "----"
+          echo ${{ steps.hardened-ami.outputs.amiId }}
+          echo "----"
+          echo ${{ steps.check-current-ami-id.outputs.amiId }}
+          echo "----"
           sed -i 's/"amiId": ""/"amiId": "${{steps.hardened-ami.outputs.amiId}}"/' cdk.context.json
           npm install
           npm run cdk synth DynatraceActivegateStack
