@@ -19,8 +19,22 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18.18.0'
+      - name: Search latest hardened AMI
+        id: hardened-ami
+        run: |
+          LATEST_AMI=$(aws ec2 describe-images \
+          --owners aws-marketplace \
+          --filters 'Name=name,Values=*'${PRODUCT_ID}'*' \
+          --query 'Images[*].[ImageId,CreationDate]' --output text | sort -k2 -r | head -n1 | awk '{ print $1 }')
+          echo "amiId=$LATEST_AMI" >> "$GITHUB_OUTPUT"
+        env:
+          AWS_DEFAULT_REGION: eu-west-2
+          # Product ID belongs to the aws marketplace owner and is unique to the ami offering
+          PRODUCT_ID: "c41d38c4-3f6a-4434-9a86-06dd331d3f9c"
       - name: Install node dependencies
-        run: npm ci
+        run: |
+          npm ci
+          sed -i 's/"amiId": ""/"amiId": "${{steps.hardened-ami.outputs.amiId}}"/' cdk.context.json  
       - name: Run Jest Tests
         run: npm test
 
@@ -33,9 +47,22 @@ jobs:
         uses: actions/checkout@v3
       - name: Install node dependencies
         run: npm ci
+      - name: Search latest hardened AMI
+        id: hardened-ami
+        run: |
+          LATEST_AMI=$(aws ec2 describe-images \
+          --owners aws-marketplace \
+          --filters 'Name=name,Values=*'${PRODUCT_ID}'*' \
+          --query 'Images[*].[ImageId,CreationDate]' --output text | sort -k2 -r | head -n1 | awk '{ print $1 }')
+          echo "amiId=$LATEST_AMI" >> "$GITHUB_OUTPUT"
+        env:
+          AWS_DEFAULT_REGION: eu-west-2
+          # Product ID belongs to the aws marketplace owner and is unique to the ami offering
+          PRODUCT_ID: "c41d38c4-3f6a-4434-9a86-06dd331d3f9c"
       - name: cdk synth
         run: |
           npm install
+          sed -i 's/"amiId": ""/"amiId": "${{steps.hardened-ami.outputs.amiId}}"/' cdk.context.json
           npm run cdk synth DynatraceActivegateStack
       - name: Run Checkov action
         uses: bridgecrewio/checkov-action@v12
@@ -97,7 +124,7 @@ jobs:
           npm run cdk synth DynatraceActivegateStack
           aws cloudformation update-stack --stack-name DynatraceActivegateStack \
           --template-body file://cdk.out/DynatraceActivegateStack.template.json \
-          --capabilities CAPABILITY_IAM --parameters 'ParameterKey=amiId,ParameterValue="${{ steps.hardened-ami.outputs.amiId }}"'
+          --capabilities CAPABILITY_IAM
         env:
           AWS_REGION: eu-west-2
           AWS_DEFAULT_REGION: eu-west-2
