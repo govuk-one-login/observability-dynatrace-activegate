@@ -1,7 +1,7 @@
 {
     "AutoScalingGroupName": "",
     "Preferences": {
-      "InstanceWarmup": 300,
+      "InstanceWarmup": 3600,
       "MinHealthyPercentage": 50,
       "ScaleInProtectedInstances": "Ignore",
       "StandbyInstances": "Terminate"
