@@ -12,7 +12,7 @@ export class DynatraceActivegateStack extends cdk.Stack {
     super(scope, id, props);
 
     const vpc = new ec2.Vpc(this, 'vpc', {
-      maxAzs: 1
+      availabilityZones: ["eu-west-2a", "eu-west-2b", "eu-west-2c"]
     });
 
     const userData = ec2.UserData.forLinux();
