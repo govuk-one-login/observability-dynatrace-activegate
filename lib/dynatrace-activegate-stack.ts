@@ -18,13 +18,14 @@ export class DynatraceActivegateStack extends cdk.Stack {
     const userData = ec2.UserData.forLinux();
 
     userData.addCommands(
-      'yum update',
-      'yum install gcc openssl openssl-devel',
+      'yum update -y',
+      'yum install gcc openssl openssl-devel -y',
       'wget https://curl.se/download/curl-8.4.0.tar.gz',
       'tar -xvf curl-8.4.0.tar.gz curl-8.4.0',
       'cd curl-8.4.0',
       'sed -i \'s/for ac_option in --version -v -V -qversion -version; do/for ac_option in --version -v -qversion -version; do/g\' ./configure',
       './configure --with-openssl; make && make install',
+      'mv /usr/bin/curl /usr/bin/curl_back; ln -s /usr/local/bin/curl /usr/bin/curl',
       'cd -',
       'export DT_TOKEN=$(aws secretsmanager get-secret-value --region eu-west-2 --secret-id dynatrace-token --query SecretString --output text)',
       'export DT_URL=$(aws secretsmanager get-secret-value --region eu-west-2 --secret-id dynatrace-url --query SecretString --output text)',
