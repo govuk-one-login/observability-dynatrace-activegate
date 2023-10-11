@@ -1,0 +1,82 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Allow GitHub To Deploy Activgate Instances via cdk and cloudformation
+
+Resources:
+  GitHubActionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: DynatraceGitHubActionRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated:  "arn:aws:iam::985486846182:oidc-provider/token.actions.githubusercontent.com"
+            Action:
+              - sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringLike:
+                "token.actions.githubusercontent.com:sub":
+                  - "repo:govuk-one-login/observability-dynatrace-activegate:*"
+                "token.actions.githubusercontent.com:aud": 
+                  - "sts.amazonaws.com"
+      Path: /
+      Policies:
+        - PolicyName: AssumeRole-DynatraceGitHubActionRole
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                  - secretsmanager:PutSecretValue
+                  - secretsmanager:ListSecrets
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - kms:*
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - ec2:*
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - autoscaling:AttachInstances
+                  - autoscaling:CreateAutoScalingGroup
+                  - autoscaling:CreateLaunchConfiguration
+                  - autoscaling:CreateOrUpdateTags
+                  - autoscaling:DescribeAutoScalingGroups
+                  - autoscaling:DescribeAutoScalingInstances
+                  - autoscaling:DescribeLaunchConfigurations
+                  - autoscaling:UpdateAutoScalingGroup
+                  - autoscaling:StartInstanceRefresh
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - cloudformation:DescribeStacks
+                  - cloudformation:CreateChangeSet
+                  - cloudformation:CreateStack
+                  - cloudformation:RollbackStack
+                  - cloudformation:UpdateStack
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                  - ssm:GetParameters
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - iam:PassRole
+                  - iam:CreateRole
+                  - iam:DetachRolePolicy
+                  - iam:DeleteRole
+                  - iam:AttachRolePolicy
+                  - iam:TagRole
+                  - iam:RemoveRoleFromInstanceProfile
+                  - iam:CreateInstanceProfile
+                  - iam:DeleteRolePolicy
+                  - iam:DeleteInstanceProfile
+                  - iam:PutRolePolicy
+                  - iam:AddRoleToInstanceProfile
+                Resource: '*'
