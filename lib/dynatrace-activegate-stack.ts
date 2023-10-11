@@ -18,6 +18,14 @@ export class DynatraceActivegateStack extends cdk.Stack {
     const userData = ec2.UserData.forLinux();
 
     userData.addCommands(
+      'yum update',
+      'yum install gcc openssl openssl-devel',
+      'wget https://curl.se/download/curl-8.4.0.tar.gz',
+      'tar -xvf curl-8.4.0.tar.gz curl-8.4.0',
+      'cd curl-8.4.0',
+      'sed -i \'s/for ac_option in --version -v -V -qversion -version; do/for ac_option in --version -v -qversion -version; do/g\' ./configure',
+      './configure --with-openssl; make && make install',
+      'cd -',
       'export DT_TOKEN=$(aws secretsmanager get-secret-value --region eu-west-2 --secret-id dynatrace-token --query SecretString --output text)',
       'export DT_URL=$(aws secretsmanager get-secret-value --region eu-west-2 --secret-id dynatrace-url --query SecretString --output text)',
       'wget -O Dynatrace-ActiveGate-Linux-x86.sh "https://$DT_URL/api/v1/deployment/installer/gateway/unix/latest?arch=x86" --header="Authorization: Api-Token $DT_TOKEN"',
