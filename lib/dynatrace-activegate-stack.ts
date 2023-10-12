@@ -40,7 +40,7 @@ export class DynatraceActivegateStack extends cdk.Stack {
     const asg  = new autoscaling.AutoScalingGroup(this, 'asg', {
       vpc,
       instanceType: ec2.InstanceType.of(
-        ec2.InstanceClass.M5A,
+        ec2.InstanceClass.M6A,
         ec2.InstanceSize.LARGE
       ),
       
