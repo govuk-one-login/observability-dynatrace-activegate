@@ -51,6 +51,9 @@ Resources:
                   - autoscaling:DescribeLaunchConfigurations
                   - autoscaling:UpdateAutoScalingGroup
                   - autoscaling:StartInstanceRefresh
+                  - autoscaling:DescribeScheduledActions
+                  - autoscaling:DeleteLaunchConfiguration
+                  - autoscaling:DescribeScalingActivities
                 Resource: '*'
               - Effect: Allow
                 Action:
