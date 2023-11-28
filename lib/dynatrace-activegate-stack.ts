@@ -3,6 +3,8 @@ import { Construct } from 'constructs';
 import * as autoscaling from 'aws-cdk-lib/aws-autoscaling';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as route53 from 'aws-cdk-lib/aws-route53';
+import * as route53Targets from 'aws-cdk-lib/aws-route53-targets';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 
 export class DynatraceActivegateStack extends cdk.Stack {
@@ -13,6 +15,40 @@ export class DynatraceActivegateStack extends cdk.Stack {
 
     const vpc = new ec2.Vpc(this, 'vpc', {
       availabilityZones: ["eu-west-2a", "eu-west-2b", "eu-west-2c"]
+    });
+
+    const vpcEndpoint = new ec2.InterfaceVpcEndpoint(this, 'DynatraceVPCEndpoint', {
+      vpc,
+      service: new ec2.InterfaceVpcEndpointService('com.amazonaws.vpce.eu-west-2.vpce-svc-087a837d5ef308cec'),
+      subnets:{
+        subnets: vpc.privateSubnets
+      }
+    });
+
+    const prodZone = new route53.HostedZone(this, 'prod', {
+      zoneName: 'bhe21058.live.dynatrace.com',
+      vpcs: [vpc]
+    });
+    
+    new route53.ARecord(this, 'prod-record', {
+      zone: prodZone,
+      recordName: 'bhe21058.live.dynatrace.com',
+      target: {
+        aliasTarget: new route53Targets.InterfaceVpcEndpointTarget(vpcEndpoint)
+      }
+    });
+
+    const nonProdZone = new route53.HostedZone(this, 'nonprod', {
+      zoneName: 'khw46367.live.dynatrace.com',
+      vpcs: [vpc]
+    });
+    
+    new route53.ARecord(this, 'nonprod-record', {
+      zone: nonProdZone,
+      recordName: 'khw46367.live.dynatrace.com',
+      target: {
+        aliasTarget: new route53Targets.InterfaceVpcEndpointTarget(vpcEndpoint)
+      }
     });
 
     const userData = ec2.UserData.forLinux();
