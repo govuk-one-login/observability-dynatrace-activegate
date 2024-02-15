@@ -6,6 +6,7 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as route53 from 'aws-cdk-lib/aws-route53';
 import * as route53Targets from 'aws-cdk-lib/aws-route53-targets';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
+import { readFileSync } from 'fs';
 
 export class DynatraceActivegateStack extends cdk.Stack {
   public readonly role: iam.IRole;
@@ -51,27 +52,8 @@ export class DynatraceActivegateStack extends cdk.Stack {
       }
     });
 
-    const userData = ec2.UserData.forLinux();
-
-    userData.addCommands(
-      'yum update -y',
-      'yum install gcc openssl openssl-devel -y',
-      'wget https://curl.se/download/curl-8.4.0.tar.gz',
-      'tar -xvf curl-8.4.0.tar.gz curl-8.4.0',
-      'cd curl-8.4.0',
-      'sed -i \'s/for ac_option in --version -v -V -qversion -version; do/for ac_option in --version -v -qversion -version; do/g\' ./configure',
-      './configure --with-openssl; make && make install',
-      'mv /usr/bin/curl /usr/bin/curl_back; ln -s /usr/local/bin/curl /usr/bin/curl',
-      'cd -',
-      'export DT_TOKEN=$(aws secretsmanager get-secret-value --region eu-west-2 --secret-id dynatrace-token --query SecretString --output text)',
-      'export DT_URL=$(aws secretsmanager get-secret-value --region eu-west-2 --secret-id dynatrace-url --query SecretString --output text)',
-      'wget -O Dynatrace-ActiveGate-Linux-x86.sh "https://$DT_URL/api/v1/deployment/installer/gateway/unix/latest?arch=x86" --header="Authorization: Api-Token $DT_TOKEN"',
-      'wget -O Dynatrace-OneAgent-Linux-x86.sh "https://$DT_URL/api/v1/deployment/installer/agent/unix/default/latest?arch=x86" --header="Authorization: Api-Token $DT_TOKEN"',
-      'chmod +x Dynatrace-ActiveGate-Linux-x86.sh',
-      'chmod +x Dynatrace-OneAgent-Linux-x86.sh',
-      './Dynatrace-ActiveGate-Linux-x86.sh',
-      './Dynatrace-OneAgent-Linux-x86.sh'
-    );
+    const userDataText = readFileSync('lib/userdata.sh', 'utf-8');
+    const userData = ec2.UserData.custom(userDataText);
 
     const asg  = new autoscaling.AutoScalingGroup(this, 'asg', {
       vpc,
