@@ -17,13 +17,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18.18.0'
       - name: Assume AWS Role
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.DT_GH_ACTIONS_NON_PROD_ROLE_ARN }}
           #role-to-assume: ${{ secrets.DT_GH_ACTIONS_SANDBOX_ROLE_ARN }}
@@ -54,11 +54,11 @@ jobs:
       - test
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install node dependencies
         run: npm ci
       - name: Assume AWS Role
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.DT_GH_ACTIONS_NON_PROD_ROLE_ARN }}
           #role-to-assume: ${{ secrets.DT_GH_ACTIONS_SANDBOX_ROLE_ARN }}
@@ -94,11 +94,11 @@ jobs:
       - validate
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Assume AWS Role
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.DT_GH_ACTIONS_NON_PROD_ROLE_ARN }}
           #role-to-assume: ${{ secrets.DT_GH_ACTIONS_SANDBOX_ROLE_ARN }}
@@ -152,11 +152,11 @@ jobs:
       - update-non-prod
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Assume AWS Role
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.DT_GH_ACTIONS_PROD_ROLE_ARN }}
           #role-to-assume: ${{ secrets.DT_GH_ACTIONS_SANDBOX_ROLE_ARN }}
