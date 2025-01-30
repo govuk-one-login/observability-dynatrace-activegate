@@ -11,11 +11,11 @@ updates:
       interval: "daily"
     open-pull-requests-limit: 3
     assignees:
-      - "two-first-names"
+      - "chrisdodd93"
     target-branch: main
     versioning-strategy: lockfile-only
     reviewers:
-      - "govuk-one-login/observability"
+      - "govuk-one-login/fog"
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
@@ -25,9 +25,9 @@ updates:
     versioning-strategy: lockfile-only
     open-pull-requests-limit: 3
     assignees:
-      - "two-first-names"
+      - "chrisdodd93"
     reviewers:
-      - "govuk-one-login/observability"
+      - "govuk-one-login/fog"
   - package-ecosystem: "github-actions"
     # Workflow files stored in the
     # default location of `.github/workflows`
@@ -36,7 +36,7 @@ updates:
       interval: "daily"
     open-pull-requests-limit: 3
     assignees:
-      - "two-first-names"
+      - "chrisdodd93"
     reviewers:
-      - "govuk-one-login/observability"
+      - "govuk-one-login/fog"
 
